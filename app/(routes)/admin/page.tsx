@@ -18,7 +18,9 @@ export default function AdminPage() {
   useEffect(() => {
     // Verificar si el usuario está autenticado
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
         router.push("/admin/login"); // Redirigir si no está autenticado
       } else {
@@ -56,7 +58,12 @@ export default function AdminPage() {
       setEmail("");
       setPassword("");
     } catch (error) {
-      setMessage("Error al crear la cuenta: " + error.message);
+      // Manejar el tipo `unknown` de error
+      if (error instanceof Error) {
+        setMessage("Error al crear la cuenta: " + error.message);
+      } else {
+        setMessage("Error al crear la cuenta.");
+      }
     }
   };
 
@@ -74,11 +81,12 @@ export default function AdminPage() {
         Bienvenido al Panel de Administración
       </h1>
       <p className="text-gray-600 mb-8">
-       Crea un nuevo usuario para que tenga rol de Admin, el cual puede agregar noticias.
+        Crea un nuevo usuario para que tenga rol de Admin, el cual puede agregar
+        noticias.
       </p>
 
       <Card className="p-6 shadow-md bg-black hover:bg-gray-900">
-        <h2 className="text-2xl font-semibold text-blue-900 mb-4 ">
+        <h2 className="text-2xl font-semibold text-blue-900 mb-4">
           Crear nuevo administrador
         </h2>
         <form onSubmit={handleCreateAdmin} className="space-y-4">
@@ -94,7 +102,10 @@ export default function AdminPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button type="submit" className="w-full bg-blue-900 text-white hover:bg-blue-950">
+          <Button
+            type="submit"
+            className="w-full bg-blue-900 text-white hover:bg-blue-950"
+          >
             Crear Administrador
           </Button>
         </form>
