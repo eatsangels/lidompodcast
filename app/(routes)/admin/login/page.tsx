@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
+
 type AuthFormData = {
   email: string;
   password: string;
@@ -57,7 +58,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black-50 bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8">
         <h1 className="text-2xl font-bold text-blue-900 text-center mb-8">
           {isRegistering ? "Registrarse" : "Iniciar Sesión"}
@@ -116,7 +117,7 @@ export default function AuthPage() {
           </Button>
         </form>
 
-        <p className="text-center mt-4">
+        {/* <p className="text-center mt-4">
           {isRegistering ? "¿Ya tienes una cuenta? " : "¿No tienes una cuenta? "}
           <button
             type="button"
@@ -125,7 +126,7 @@ export default function AuthPage() {
           >
             {isRegistering ? "Inicia sesión" : "Regístrate"}
           </button>
-        </p>
+        </p> */}
       </Card>
     </div>
   );

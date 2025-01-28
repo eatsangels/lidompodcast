@@ -12,13 +12,13 @@ export default function ComunidadPage() {
       link: "/comunidad/beisbol-juvenil",
     },
     {
-      title: "Licey en tu Comunidad",
+      title: "LidomPodcastShow en tu Comunidad",
       description: "Actividades sociales y deportivas en diferentes barrios",
       icon: Heart,
-      link: "/comunidad/licey-comunidad",
+      link: "/comunidad/LidomPodcastShow-comunidad",
     },
     {
-      title: "Academia Licey",
+      title: "Academia LidomPodcastShow",
       description: "Formación integral de nuevos talentos",
       icon: Trophy,
       link: "/comunidad/academia",
@@ -51,12 +51,12 @@ export default function ComunidadPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://m.n.com.do/wp-content/uploads/2025/01/Tigres-del-Licey-celebra-pase-a-la-final-1140x694.jpeg')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/LP.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Comunidad Licey
+              Comunidad LidomPodcastShow
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
               Comprometidos con el desarrollo social y deportivo de nuestra comunidad
@@ -75,7 +75,7 @@ export default function ComunidadPage() {
                 <div className="flex flex-col items-center text-center">
                   <Icon className="h-12 w-12 text-blue-900" />
                   <h3 className="mt-4 text-xl font-semibold">{initiative.title}</h3>
-                  <p className="mt-2 text-gray-600">{initiative.description}</p>
+                  <p className="mt-2 text-blue-600">{initiative.description}</p>
                   <Button asChild className="mt-4 bg-blue-900 text-white hover:bg-blue-800">
                     <Link href={initiative.link}>Más Información</Link>
                   </Button>

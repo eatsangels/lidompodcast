@@ -37,12 +37,12 @@ export default function AcademiaPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1471295253337-3ceaaad65897')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/Fondo.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Academia Licey
+              Academia LidomPodcastShow
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
               Formando las estrellas del mañana

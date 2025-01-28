@@ -3,13 +3,13 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white">
+    <footer className="bg-gradient-to-r  from-blue-900 via-blue-800 to-blue-900 text-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Tigres del Licey</h3>
+            <h3 className="text-lg font-semibold mb-4">Lidom Podcast Show</h3>
             <p className="text-blue-100">
-              El equipo más ganador de la Liga de Béisbol Profesional de la República Dominicana
+              .::Vive la emoción del béisbol invernal con LIDOM El Podcast::.
             </p>
           </div>
           
@@ -22,15 +22,15 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/tienda" className="text-blue-100 hover:text-white">
+                <Link href="https://elpodcastbaseball.myspreadshop.com/">
                   Tienda Oficial
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/contacto" className="text-blue-100 hover:text-white">
                   Contacto
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
           
@@ -39,22 +39,22 @@ export default function Footer() {
             <ul className="space-y-2">
               <li className="flex items-center space-x-2">
                 <Mail className="h-5 w-5" />
-                <span>info@licey.com</span>
+                <span>joannegocios06@gmail.com</span>
               </li>
-              <li>Santo Domingo, RD</li>
+              <li>República Dominicana</li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">Síguenos</h3>
             <div className="flex space-x-4">
-              <a href="https://facebook.com" className="text-blue-100 hover:text-white">
+              <a href="https://facebook.com/dominicanbaseballplayers" className="text-blue-100 hover:text-white">
                 <Facebook className="h-6 w-6" />
               </a>
               <a href="https://twitter.com" className="text-blue-100 hover:text-white">
                 <Twitter className="h-6 w-6" />
               </a>
-              <a href="https://instagram.com" className="text-blue-100 hover:text-white">
+              <a href="https://instagram.com/elpodcastdelidom/" className="text-blue-100 hover:text-white">
                 <Instagram className="h-6 w-6" />
               </a>
             </div>
@@ -63,7 +63,10 @@ export default function Footer() {
         
         <div className="mt-8 border-t border-blue-700 pt-8 text-center">
           <p className="text-blue-100">
-            © {new Date().getFullYear()} Tigres del Licey. Todos los derechos reservados.
+            © {new Date().getFullYear()} Lidom Podcast Show. Todos los derechos reservados Website created by
+            <Link href="https://www.instagram.com/etrinidad/" target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-white font-semibold underline">:  
+              Edward Trinidad
+            </Link>
           </p>
         </div>
       </div>

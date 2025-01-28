@@ -8,7 +8,7 @@ export default function InfoMediaPage() {
       title: "Victoria Importante en Serie Regular",
       date: "20 de Marzo, 2025",
       category: "Noticias",
-      excerpt: "Los Tigres del Licey logran importante victoria...",
+      excerpt: "Los Lidom Podcast Show logran importante victoria...",
     },
     {
       title: "Entrevista Exclusiva con el Manager",
@@ -52,7 +52,7 @@ export default function InfoMediaPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://m.n.com.do/wp-content/uploads/2025/01/Tigres-del-Licey-celebra-pase-a-la-final-1140x694.jpeg')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/Fondo.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">

@@ -4,25 +4,25 @@ import { Users, Mail, Phone } from "lucide-react";
 export default function DirectivosPage() {
   const directivos = [
     {
-      name: "Ricardo Ravelo",
-      position: "Presidente",
-      image: "https://hoy.com.do/wp-content/uploads/2021/06/048bbdde-ricardo-ravelo-jana-60b709666ada5-640x384-1.jpg?x86501",
-      email: "presidente@licey.com",
-      phone: "(809) 555-0100",
+      name: "Joan Fermín",
+      position: "CEO y creador de la compañía JF Creator Company",
+      image: "/images/Joan_Fermin.png",
+      email: "joannegocios06@gmail.com",
+      phone: "(829) 959-0434",
     },
     {
-      name: "Miguel Guerra Armenteros",
+      name: "Jonathan Chal Nuñez",
       position: "Vicepresidente",
-      image: "https://pbs.twimg.com/media/B94oX1jIcAADn3T?format=jpg&name=900x900",
-      email: "vicepresidente@licey.com",
-      phone: "(809) 555-0101",
+      image: "/images/JhonathanChal.png",
+      email: "joannegocios06@gmail.com",
+      phone: "(829) 959-0434",
     },
     {
-      name: "Rafael Antonio Úbeda Heded",
-      position: "Secretario",
-      image: "https://cdn.com.do/wp-content/uploads/2017/06/679c7615-presidente-licey.jpg",
-      email: "secretaria@licey.com",
-      phone: "(809) 555-0102",
+      name: "Edward Trinidad",
+      position: "Web Developer",
+      image: "/images/Edward_Trinidad.png",
+      email: "alexandertrinidad@gmail.com",
+      phone: "(829) 959-0434",
     },
   ];
 
@@ -49,15 +49,15 @@ export default function DirectivosPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://m.n.com.do/wp-content/uploads/2025/01/Tigres-del-Licey-celebra-pase-a-la-final-1140x694.jpeg')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/Fondo.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Directivos 2023-2025
+              Directivos.
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
-              Conoce al equipo que lidera los Tigres del Licey
+              Conoce al equipo que lidera Lidom Podcast Show
             </p>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function DirectivosPage() {
       </div>
 
       {/* Departments Section */}
-      <div className="bg-blue-900 py-16">
+      {/* <div className="bg-blue-900 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-white text-center mb-12">Departamentos</h2>
           <div className="grid gap-8 md:grid-cols-3">
@@ -116,7 +116,7 @@ export default function DirectivosPage() {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

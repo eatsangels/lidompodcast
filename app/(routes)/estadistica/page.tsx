@@ -5,54 +5,55 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function EstadisticaPage() {
   const battingStats = [
     {
-      player: "Emilio Bonifacio",
-      avg: ".291",
-      hr: "1",
-      rbi: "9",
-      runs: "38",
-      sb: "13",
-    },
-    {
-      player: "Domingo Leyba",
-      avg: ".268",
-      hr: "2",
-      rbi: "10",
-      runs: "28",
-      sb: "2",
-    },
-    {
-      player: "Sergio Alcántara",
-      avg: ".278",
+      player: "J.C.Escarra",
+      avg: ".363",
       hr: "3",
-      rbi: "22",
-      runs: "32",
+      rbi: "14",
+      runs: "22",
+      sb: "1",
+    },
+    {
+      player: "AderlinRodríguez",
+      avg: ".323",
+      hr: "8",
+      rbi: "28",
+      runs: "22",
+      sb: "1",
+    },
+    {
+      player: "Jerar Encarnacion",
+      avg: ".297",
+      hr: "34",
+      rbi: "24",
+      runs: "22",
       sb: "12",
     },
   ];
 
   const pitchingStats = [
     {
-      player: "César Valdez",
-      era: "2.45",
-      w: "8",
-      l: "2",
-      so: "75",
+      player: "Enny Romero",
+      era: "1.24",
+      w: "6",
+      l: "1",
+      so: "47",
       saves: "0",
     },
     {
-      player: "Jairo Asencio",
-      era: "1.98",
-      w: "2",
-      l: "1",
-      so: "45",
-      saves: "15",
-    },
-    {
-      player: "Jonathan Aro",
-      era: "3.15",
+      player: "Nabil Crismatt",
+      era: "2.65",
       w: "5",
-      l: "3",
-      so: "52",
+      l: "2",
+      so: "49",
+      saves: "0",
+    },
+    
+    {
+      player: "Wily Peralta",
+      era: "2.85",
+      w: "2",
+      l: "5",
+      so: "30",
       saves: "0",
     },
   ];
@@ -62,7 +63,7 @@ export default function EstadisticaPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://media.piodeportes.com/uploads/WhatsApp-Image-2025-01-15-at-11.01.39-PM-728x486-1.webp')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/Fondo.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -86,7 +87,7 @@ export default function EstadisticaPage() {
           
           <TabsContent value="batting">
             <Card className="p-6">
-              <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Bateo</h3>
+              <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Bateo Lidom 2024-2025 </h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -118,7 +119,7 @@ export default function EstadisticaPage() {
           
           <TabsContent value="pitching">
             <Card className="p-6">
-              <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Pitcheo</h3>
+              <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Pitcheo Lidom 2024-2025</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -151,7 +152,7 @@ export default function EstadisticaPage() {
       </div>
 
       {/* Team Stats */}
-      <div className="bg-blue-900 py-16">
+      {/* <div className="bg-blue-900 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-lg bg-white/5 p-8 text-center">
@@ -172,7 +173,7 @@ export default function EstadisticaPage() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

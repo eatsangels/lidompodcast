@@ -9,19 +9,19 @@ export default function BeisbolJuvenilPage() {
       title: "Liga Infantil",
       age: "8-12 años",
       schedule: "Sábados 9:00 AM - 12:00 PM",
-      location: "Campo de Entrenamiento Licey",
+      location: "Campo de Entrenamiento LidomPodcastShow",
     },
     {
       title: "Liga Juvenil",
       age: "13-15 años",
       schedule: "Sábados 2:00 PM - 5:00 PM",
-      location: "Campo de Entrenamiento Licey",
+      location: "Campo de Entrenamiento LidomPodcastShow",
     },
     {
       title: "Academia de Pitcheo",
       age: "10-15 años",
       schedule: "Domingos 9:00 AM - 11:00 AM",
-      location: "Campo de Entrenamiento Licey",
+      location: "Campo de Entrenamiento LidomPodcastShow",
     },
   ];
 
@@ -30,7 +30,7 @@ export default function BeisbolJuvenilPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1587542177509-573b5aeb557f')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/Fondo.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">

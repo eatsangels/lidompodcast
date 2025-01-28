@@ -5,7 +5,7 @@ import { Calendar, Clock, MapPin, Users } from "lucide-react";
 export default function EventosPage() {
   const events = [
     {
-      title: "Día Familiar Licey",
+      title: "Día Familiar LidomPodcastShow",
       date: "30 de Marzo, 2024",
       time: "10:00 AM - 6:00 PM",
       location: "Estadio Quisqueya Juan Marichal",
@@ -15,14 +15,14 @@ export default function EventosPage() {
       title: "Clínica de Béisbol",
       date: "6 de Abril, 2024",
       time: "9:00 AM - 1:00 PM",
-      location: "Campo de Entrenamiento Licey",
+      location: "Campo de Entrenamiento LidomPodcastShow",
       description: "Aprende de los mejores jugadores y entrenadores",
     },
     {
       title: "Torneo Infantil",
       date: "13-14 de Abril, 2024",
       time: "Todo el día",
-      location: "Complejo Deportivo Licey",
+      location: "Complejo Deportivo LidomPodcastShow",
       description: "Competencia para equipos infantiles",
     },
   ];
@@ -32,7 +32,7 @@ export default function EventosPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/Fondo.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">

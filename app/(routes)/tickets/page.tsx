@@ -12,7 +12,7 @@ export default function TicketsPage() {
   const games = [
     {
       id: 1,
-      homeTeam: "Tigres del Licey",
+      homeTeam: "Lidom Podcast Show",
       awayTeam: "Águilas Cibaeñas",
       date: "23 de Marzo, 2024",
       time: "7:00 PM",
@@ -20,7 +20,7 @@ export default function TicketsPage() {
     },
     {
       id: 2,
-      homeTeam: "Tigres del Licey",
+      homeTeam: "Lidom Podcast Show",
       awayTeam: "Leones del Escogido",
       date: "25 de Marzo, 2024",
       time: "7:30 PM",
@@ -62,7 +62,7 @@ export default function TicketsPage() {
               Compra tus Boletos
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
-              Asegura tu lugar en los próximos juegos de los Tigres del Licey
+              Asegura tu lugar en los próximos juegos de los Lidom Podcast Show
             </p>
           </div>
         </div>

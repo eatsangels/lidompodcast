@@ -1,61 +1,31 @@
-import { Trophy, Award, Star } from "lucide-react";
+import { Trophy, Award, Star, MicVocal  } from "lucide-react";
 
 export default function HistoriaPage() {
   const achievements = [
     {
-      year: "1907",
+      year: "2022 - Fundación",
       title: "Fundación",
-      description: "Fundación del equipo de béisbol Tigres del Licey: Fundación del equipo en una reunión en la casa de Vicente María y Jacinto 'Pichán' Vallejo en la Zona Colonial de Santo Domingo.    ",
+      description: " 'LIDOM El Podcast' nació durante la temporada 2022-2023 de la Liga Invernal de Béisbol Profesional de la República Dominicana, una de las competiciones más apasionantes y tradicionales del béisbol en el Caribe. Desde su creación, este podcast ha logrado capturar la atención de una amplia fanaticada que sigue de cerca los acontecimientos, análisis y emociones que rodean la liga.    ",
     },
     {
-      year: "1951",
-      title: "Primer Campeonato",
-      description: "Obtienen su primer campeonato en la Liga Dominicana de Béisbol Profesional",
+      year: "2025",
+      title: "Llegamos a 90,000 suscriptores",
+      description: "LIDOM El Podcast alcanzó la impresionante cifra de 90,000 suscriptores, consolidándose como una referencia clave para los fanáticos del béisbol invernal dominicano. Este logro refleja el compromiso del equipo detrás del podcast en brindar contenido de calidad, análisis detallado y una conexión auténtica con su audiencia.",
     },
-    {
-      year: "1955-56",
-      title: "Inician los juegos nocturnos",
-      description: "Inician los juegos nocturnos bajo luces en el béisbol dominicano; Licey gana su primer campeonato en esta modalidad en la temporada 1958-59.",
-    },
+    
 
-    {
-      year: "1963-64",
-      title: "Serie Internacional",
-      description: "Tras una pausa de dos años debido al ajusticiamiento del dictador Rafael Trujillo, los Tigres conquistan el campeonato de esa temporada.",
-    },
-    {
-      year: "1969-70 y 1970-71",
-      title: "Serie Internacional",
-      description: "Logran campeonatos consecutivos, igualando en ese momento en títulos con los Leones del Escogido.",
-    },
-    {
-      year: "1971",
-      title: "Serie Internacional",
-      description: "Ganan su primera Serie del Caribe, iniciando una destacada trayectoria en este torneo regional.",
-    },
-    {
-      year: "1972-73 y 1973-74",
-      title: "Serie Internacional",
-      description: "Obtienen nuevamente campeonatos consecutivos en la liga dominicana.",
-    },
+    
   ];
 
   const championships = [
     {
-      year: "2024",
-      opponent: "Estrellas Orientales",
-      score: "4-1",
+      year: "Fundador",
+      opponent: "Dirigido por Joan Fermín, CEO y creador de la compañía JF Creator Company, y Jonathan Chal Núñez, ambos hermanos y creadores de contenido, el podcast refleja no solo su amor por el béisbol, sino también su compromiso con brindar información entretenida y de calidad a los fanáticos. La conexión entre ambos y su origen en una familia humilde han sido pilares fundamentales en el éxito del proyecto, destacando valores como la perseverancia, la pasión y la unidad familiar.", 
+      
     },
-    {
-      year: "2023",
-      opponent: "Águilas Cibaeñas",
-      score: "4-2",
-    },
-    {
-      year: "2021",
-      opponent: "Gigantes del Cibao",
-      score: "4-3",
-    },
+
+    
+    
   ];
 
   return (
@@ -63,7 +33,7 @@ export default function HistoriaPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://m.n.com.do/wp-content/uploads/2025/01/Tigres-del-Licey-celebra-pase-a-la-final-1140x694.jpeg')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/LP.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -71,7 +41,7 @@ export default function HistoriaPage() {
               Nuestra Historia
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
-              Más de 100 años de tradición y excelencia en el béisbol dominicano
+              Lidom Podcast Show, el espacio donde discutimos todo sobre la Liga de Béisbol Profesional de la República Dominicana (LIDOM).
             </p>
           </div>
         </div>
@@ -81,7 +51,7 @@ export default function HistoriaPage() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
-            <h2 className="text-3xl font-bold text-blue-900">Momentos Históricos</h2>
+            <h2 className="text-3xl font-bold text-blue-900">Momentos Históricos de LIDOM El Podcast</h2>
             <div className="mt-8 space-y-8">
               {achievements.map((achievement, index) => (
                 <div
@@ -100,7 +70,7 @@ export default function HistoriaPage() {
           </div>
 
           <div>
-            <h2 className="text-3xl font-bold text-blue-900">Últimos Campeonatos</h2>
+            <h2 className="text-3xl font-bold text-blue-900">Un poco de Historia.</h2>
             <div className="mt-8 space-y-6">
               {championships.map((championship, index) => (
                 <div
@@ -109,18 +79,18 @@ export default function HistoriaPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm text-white-500">Temporada</div>
+                      <div className="text-sm text-white-500">CEO</div>
                       <div className="text-xl font-bold text-blue-900">
                         {championship.year}
                       </div>
                     </div>
-                    <Trophy className="h-8 w-8 text-yellow-400" />
+                    <MicVocal className="h-8 w-8 text-yellow-400" />
                   </div>
                   <div className="mt-4">
-                    <div className="text-sm text-gray-900">Final contra</div>
+                    
                     <div className="font-semibold">{championship.opponent}</div>
-                    <div className="mt-2 text-sm text-gray-900">Serie Final</div>
-                    <div className="font-semibold">{championship.score}</div>
+                    
+                    
                   </div>
                 </div>
               ))}
@@ -130,7 +100,7 @@ export default function HistoriaPage() {
       </div>
 
       {/* Stats Section */}
-      <div className="bg-blue-900 py-16">
+      {/* <div className="bg-blue-900 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-lg bg-white/5 p-8 text-center">
@@ -150,7 +120,7 @@ export default function HistoriaPage() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -4,20 +4,20 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import Link from 'next/link'
 
-function LiceyEnTuComunidad() {
+function LidomPodcastShowEnTuComunidad() {
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="relative bg-blue-900 py-24">
                 <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('https://m.n.com.do/wp-content/uploads/2025/01/Tigres-del-Licey-celebra-pase-a-la-final-1140x694.jpeg')] bg-cover bg-center opacity-10" />
+                    <div className="absolute inset-0 bg-[url('/images/Fondo.jpg')] bg-cover bg-center opacity-10" />
                 </div>
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                            Licey en tu Comunidad
+                            LidomPodcastShow en tu Comunidad
                         </h1>
                         <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
-                            Descubre cómo el equipo de los Tigres del Licey impacta tu comunidad con acciones sociales y deportivas
+                            Descubre cómo el equipo de los Lidom Podcast Show impacta tu comunidad con acciones sociales y deportivas
                         </p>
                     </div>
                 </div>
@@ -55,4 +55,4 @@ function LiceyEnTuComunidad() {
     )
 }
 
-export default LiceyEnTuComunidad
+export default LidomPodcastShowEnTuComunidad

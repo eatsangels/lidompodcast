@@ -19,45 +19,52 @@ export default function MultimediaPage() {
   const videos = [
     {
       id: "video1",
-      title: "Highlights: Licey vs Águilas",
-      description: "Lo mejor del juego entre Tigres y Águilas",
-      embedUrl: "https://www.youtube.com/embed/-A3ZIiodIAg?si=a7M4Fj8ybKuBCRXu",
-      date: "2 de Enero, 2025",
+      title: "Tigres Del Licey Vs Leones Del Escogido l Resumen De Serie Final 2024-2025",
+      description: "Resumen de la serie final del campeonato nacional de la Lidom.",
+      embedUrl: "https://www.youtube.com/embed/WRgSm1nLM48?si=1lf1BNRR2tD3kdDN",
+      date: "27 de Enero, 2025",
     },
     {
       id: "video2",
-      title: "Entrevista con el Manager",
-      description: "Conversación exclusiva con nuestro dirigente",
-      embedUrl: "https://www.youtube.com/embed/mc8D6RGdn3Q?si=HO1yF4KH4itNlnb_",
-      date: "8 de Enero, 2025",
+      title: "Junior Caminero EXPLOTA con un Jonrón de 411 Pies Contra Jairo Asencio en la Serie Finalsta con el Manager",
+      description: "Caminero Conecta HR por los 411",
+      embedUrl: "https://www.youtube.com/embed/gmrH1z5nWNU?si=COKRrJILB5dRq_I9",
+      date: "27 de Enero, 2025",
+    },
+    {
+      id: "video3",
+      title: "LICEY VS ESCOGIDO  Jonathan ANUNCIA al Posible GANADOR de la Serie Final: Licey vs Escogido",
+      description: "Un solo ganador!!",
+      embedUrl: "https://www.youtube.com/embed/y9Ly_xTmX_c?si=I3wDf3HTxZIuq-EP",
+      date: "19 ene 2025  ",
     },
   ];
 
   const galleries = [
     {
-      title: "Celebración del Campeonato",
-      image: "https://img.mlbstatic.com/mlb-images/image/upload/ar_16:9,g_auto,q_auto:good,w_1024,c_fill,f_jpg/mlb/rg4j5fx7chtyg9hbvqmc",
-      description: "Los Tigres celebran su victoria en el campeonato nacional",
+      title: "Celebración del Campeonato 2025",
+      image: "/images/LeonesCampeon.png",
+      description: "Los Leoenes celebran su victoria en el campeonato nacional",
     },
     {
-      title: "Práctica del Equipo",
-      image: "http://www.licey.com/wp-content/uploads/2018/08/Campamento-0.jpg",
-      description: "Entrenamiento previo al inicio de la temporada",
+      title: "Dugouts del Escodigo",
+      image: "https://hoy.com.do/wp-content/uploads/2025/01/IMG-20250127-WA0062-scaled.jpg?x86501",
+      description: "Serie Final de la Liga de Béisbol Profesional de la República Dominicana",
     },
     {
-      title: "Fanáticos en el Estadio",
-      image: "https://elavancemedia.com/wp-content/uploads/2024/12/image-231.png",
-      description: "La mejor fanaticada del béisbol dominicano",
+      title: "Junior Caminero",
+      image: "https://resources.diariolibre.com/images/2025/01/28/17--escogido-campeon-2024-2025-felix-leon.jpg",
+      description: "HR 411 de Junior Caminero",
     },
     {
       title: "Jugadas Destacadas",
-      image: "http://www.licey.com/wp-content/uploads/2024/10/SergioAlcantara102824-scaled-e1730126637916.jpeg",
+      image: "https://pbs.twimg.com/media/GiWXrRoaUAAVZjJ.jpg",
       description: "Momentos memorables de la temporada",
     },
     {
-      title: "Equipo Completo",
-      image: "https://cdndeportes.com.do/wp-content/uploads/2023/11/anillo1-1024x682.jpg",
-      description: "Roster oficial de los Tigres del Licey",
+      title: "Presidente de la República Dominicana Felicita a los Leones",
+      image: "https://www.eyr.com.do/wp-content/uploads/2025/01/WhatsApp-Image-2025-01-27-at-11.57.28-PM.jpeg",
+      description: "Luis Abinader felicita a los Leones del Escogido",
     },
   ];
 
@@ -66,15 +73,15 @@ export default function MultimediaPage() {
       {/* Hero Section */}
       <div className="relative bg-blue-900 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://m.n.com.do/wp-content/uploads/2025/01/Tigres-del-Licey-celebra-pase-a-la-final-1140x694.jpeg')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/LP.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Multimedia
+            Visita nuestros canales de YouTube
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
-              Disfruta del mejor contenido audiovisual de los Tigres del Licey
+              Disfruta del mejor contenido audiovisual de los Lidom Podcast Show
             </p>
           </div>
         </div>
@@ -90,7 +97,7 @@ export default function MultimediaPage() {
           </TabsList>
 
           <TabsContent value="videos" className="mt-8">
-            <div className="grid gap-8 md:grid-cols-2">
+            <div className="grid gap-8 md:grid-cols-3">
               {videos.map((video) => (
                 <Card key={video.id} className="overflow-hidden">
                   <div className="aspect-video w-full">
@@ -117,7 +124,7 @@ export default function MultimediaPage() {
     <div className="aspect-video w-full">
       <iframe
         className="h-full w-full"
-        src="https://www.youtube.com/embed/6b_0bd88Fd0"
+        src="https://www.youtube.com/embed/07NSq4J_Jic?si=dZcXjhSmd52gag1d"
         title="Transmisión en Vivo"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen

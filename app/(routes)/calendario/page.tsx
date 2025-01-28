@@ -6,7 +6,7 @@ export default function CalendarioPage() {
   const games = [
     {
       id: 1,
-      homeTeam: "Tigres del Licey",
+      homeTeam: "Lidom Podcast Show",
       awayTeam: "Águilas Cibaeñas",
       date: "23 de Marzo, 2025",
       time: "7:00 PM",
@@ -17,7 +17,7 @@ export default function CalendarioPage() {
     {
       id: 2,
       homeTeam: "Leones del Escogido",
-      awayTeam: "Tigres del Licey",
+      awayTeam: "Lidom Podcast Show",
       date: "25 de Marzo, 2025",
       time: "7:30 PM",
       venue: "Estadio Quisqueya Juan Marichal",
@@ -26,7 +26,7 @@ export default function CalendarioPage() {
     },
     {
       id: 3,
-      homeTeam: "Tigres del Licey",
+      homeTeam: "Lidom Podcast Show",
       awayTeam: "Gigantes del Cibao",
       date: "27 de Marzo, 2025",
       time: "7:00 PM",
@@ -37,11 +37,11 @@ export default function CalendarioPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen  bg-gray-50">
       {/* Hero Section */}
-      <div className="relative bg-blue-900 py-24">
+      <div className="relative h-[750px] bg-gradient-to-b from-red-900/90 to-blue-800/70 py-24">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://m.n.com.do/wp-content/uploads/2025/01/Tigres-del-Licey-celebra-pase-a-la-final-1140x694.jpeg')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('/images/Fondo.jpg')] bg-cover bg-center opacity-10" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -49,7 +49,7 @@ export default function CalendarioPage() {
               Calendario de Juegos
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
-              Consulta los próximos juegos de los Tigres del Licey y asegura tus boletos
+              Consulta los próximos juegos de los Lidom Podcast Show y asegura tus boletos
             </p>
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function CalendarioPage() {
               </div>
               <div className="relative ">
                 <img
-                  src="https://www.licey.com/wp-content/uploads/2025/01/abonosfinal-e1737305890149.jpg"
+                  src="https://www.LidomPodcastShow.com/wp-content/uploads/2025/01/abonosfinal-e1737305890149.jpg"
                   alt="Estadio"
                   className="rounded-lg object-cover shadow-xl"
                 />

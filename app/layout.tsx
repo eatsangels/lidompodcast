@@ -8,8 +8,8 @@ import Footer from '@/components/Footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Tigres del Licey',
-  description: 'Sitio oficial de los Tigres del Licey de la Liga de Béisbol Profesional de la República Dominicana',
+  title: 'Lidom Podcast Show',
+  description: 'Sitio oficial de los Lidom Podcast Show de la Liga de Béisbol Profesional de la República Dominicana',
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="https://www.licey.com/wp-content/themes/glorius-1071/favicon.ico" />
+        <link rel="icon" href="/images/favicon.ico" />
       </head>
       <body className={inter.className}>
         <ThemeProvider
