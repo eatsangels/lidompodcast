@@ -1,13 +1,16 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, Trophy, Calendar, Star, Users, Newspaper } from "lucide-react";
+import Noticias from "@/app/(routes)/noticias/page";
+
+
 
 export default function Home() {
   return (
-    <div className="relative">
+    <div className="relative ">
       {/* Hero Section */}
       <div 
-        className="relative h-[600px] bg-cover bg-center"
+        className="relative h-[600px] bg-cover bg-center "
         style={{
           backgroundImage: "url('https://m.n.com.do/wp-content/uploads/2025/01/Tigres-del-Licey-celebra-pase-a-la-final-1140x694.jpeg')",
         }}
@@ -21,7 +24,7 @@ export default function Home() {
             <p className="mt-6 text-xl text-blue-100">
             <Trophy className="h-12 w-12 text-yellow-200 mb-4"> </Trophy>24 veces campeones de la Liga de Béisbol Profesional de la República Dominicana y <Trophy className="h-12 w-12 text-yellow-200 mb-4"> </Trophy> 11 Series del Caribe. 
             </p>
-            <div className="mt-10 flex items-center gap-x-6">
+            <div className="mt-10 flex items-center gap-x-6 bg">
               <Button asChild className="bg-yellow-400 text-blue-900 hover:bg-yellow-500">
                 <Link href="/calendario">
                   Ver Próximos Juegos
@@ -39,7 +42,7 @@ export default function Home() {
       </div>
 
       {/* Stats Section */}
-      <div className="bg-white py-12">
+      <div className="bg-white py-12 bg">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div className="flex flex-col items-center p-6 bg-blue-50 rounded-lg">
@@ -67,7 +70,7 @@ export default function Home() {
       </div>
 
       {/* Latest News Section */}
-      <div className="bg-gray-50 py-24">
+      <div className="bg-gray-50  py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -176,6 +179,13 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      
+      
+
+      <Noticias />
+
+      
 
       {/* Next Game Section */}
       <div className="bg-blue-900 py-16">
