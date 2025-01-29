@@ -10,7 +10,16 @@ const supabase = createClient();
 
 export default function NewsDetailPage() {
     const { id } = useParams();
-    const [news, setNews] = useState(null);
+    interface News {
+        id: string;
+        title: string;
+        content: string;
+        image_url: string;
+        video_url?: string;
+        created_at: string;
+    }
+    
+    const [news, setNews] = useState<News | null>(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
     const [userName, setUserName] = useState("");
