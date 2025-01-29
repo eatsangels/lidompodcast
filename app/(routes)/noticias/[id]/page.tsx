@@ -17,6 +17,7 @@ export default function NewsDetailPage() {
         image_url: string;
         video_url?: string;
         created_at: string;
+        category: string;
     }
     
     const [news, setNews] = useState<News | null>(null);
@@ -26,6 +27,7 @@ export default function NewsDetailPage() {
         comment: string;
         created_at: string;
         likes: number;
+        
     }
 
     const [comments, setComments] = useState<Comment[]>([]);
