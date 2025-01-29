@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import { debounce } from "lodash";
 
 type News = {
   id: number;
@@ -22,12 +23,24 @@ export default function NoticiasPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const itemsPerPage = 6;
   const supabase = createClient();
 
+  const debounceSearch = useCallback(
+    debounce((query) => setDebouncedQuery(query), 500),
+    []
+  );
+
+  useEffect(() => {
+    debounceSearch(searchQuery);
+    return () => debounceSearch.cancel();
+  }, [searchQuery, debounceSearch]);
+
   useEffect(() => {
     fetchNews();
-  }, [currentPage]);
+  }, [currentPage, debouncedQuery]);
 
   const fetchNews = async () => {
     try {
@@ -35,15 +48,21 @@ export default function NoticiasPage() {
       const from = (currentPage - 1) * itemsPerPage;
       const to = from + itemsPerPage - 1;
 
-      const { data: newsData, error, count } = await supabase
-        .from("news") // Asegura que `newsData` tenga el tipo `News[]`
+      let query = supabase
+        .from("news")
         .select("*", { count: "exact" })
-        .order("created_at", { ascending: false })
-        .range(from, to);
+        .order("created_at", { ascending: false });
+
+      if (debouncedQuery) {
+        query = query.or(
+          `title.ilike.%${debouncedQuery}%,content.ilike.%${debouncedQuery}%`
+        );
+      }
+
+      const { data: newsData, error, count } = await query.range(from, to);
 
       if (error) throw error;
 
-      // Filtrar los datos para asegurarse de que cada item tenga la estructura correcta
       setNews((newsData || []).filter((item): item is News => !!item.id && !!item.title && !!item.content && !!item.image_url));
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
     } catch (error) {
@@ -51,6 +70,11 @@ export default function NoticiasPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
   };
 
   const formatDate = (date: string) => {
@@ -76,6 +100,20 @@ export default function NoticiasPage() {
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100  ">
               Mantente al día con las últimas noticias de los Lidom Podcast Show
             </p>
+            
+            {/* Nueva barra de búsqueda */}
+            <div className="mt-8 mx-auto max-w-2xl">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Buscar noticias..."
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+                <Search className="h-5 w-5 text-gray-400 absolute right-3 top-3.5" />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -89,61 +127,71 @@ export default function NoticiasPage() {
           </div>
         ) : (
           <>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 ">
-              {news.map((item) => (
-                <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow   ">
-                  <div className="aspect-video w-full overflow-hidden ">
-                    <img
-                      src={item.image_url}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    />
-                  </div>
-                  <div className="p-6 ">
-                    <div className="flex items-center text-sm text-gray-500 mb-2 ">
-                      <Calendar className="h-4 w-4 mr-2 " />
-                      {formatDate(item.created_at)}
-                    </div>
-                    <h3 className="text-xl font-semibold text-blue-900 mb-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-white text-600 line-clamp-3  ">{item.content}</p>
-                    <div className="mt-4 ">
-                      <Link href={`/noticias/${item.id}`} passHref>
-                        <Button variant="outline" className="w-full">
-                          Leer más
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            {news.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-600 text-lg">
+                  No se encontraron noticias {debouncedQuery && `para "${debouncedQuery}"`}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 ">
+                  {news.map((item) => (
+                    <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow   ">
+                      <div className="aspect-video w-full overflow-hidden ">
+                        <img
+                          src={item.image_url}
+                          alt={item.title}
+                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        />
+                      </div>
+                      <div className="p-6 ">
+                        <div className="flex items-center text-sm text-gray-500 mb-2 ">
+                          <Calendar className="h-4 w-4 mr-2 " />
+                          {formatDate(item.created_at)}
+                        </div>
+                        <h3 className="text-xl font-semibold text-blue-900 mb-2">
+                          {item.title}
+                        </h3>
+                        <p className="text-white text-600 line-clamp-3  ">{item.content}</p>
+                        <div className="mt-4 ">
+                          <Link href={`/noticias/${item.id}`} passHref>
+                            <Button variant="outline" className="w-full">
+                              Leer más
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
 
-            {/* Pagination */}
-            <div className="mt-12 flex justify-center items-center space-x-4  ">
-              <Button
-                variant="outline"
-                className="bg-blue-700 text-white hover:bg-gray-800"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Anterior
-              </Button>
-              <span className="text-gray-600 ">
-                Página {currentPage} de {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                className="bg-blue-600 text-white hover:bg-blue-800"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                Siguiente
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
+                {/* Pagination */}
+                <div className="mt-12 flex justify-center items-center space-x-4  ">
+                  <Button
+                    variant="outline"
+                    className="bg-blue-700 text-white hover:bg-gray-800"
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Anterior
+                  </Button>
+                  <span className="text-gray-600 ">
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    className="bg-blue-600 text-white hover:bg-blue-800"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Siguiente
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
