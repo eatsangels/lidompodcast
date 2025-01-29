@@ -67,7 +67,7 @@ export default function NewsDetailPage() {
                 const { data, error } = await supabase
                     .from("news")
                     .select("*")
-                    .eq("id", id)
+                    .eq("id", id as string)
                     .single();
 
                 if (error) {
@@ -90,7 +90,7 @@ export default function NewsDetailPage() {
                 const { data, error } = await supabase
                     .from("comments")
                     .select("*")
-                    .eq("news_id", id)
+                    .eq("news_id", id as string)
                     .order("created_at", { ascending: false });
 
                 if (error) {
@@ -115,8 +115,10 @@ export default function NewsDetailPage() {
         };
 
       if (id) {
-        fetchNews();
-           fetchComments();
+        if (typeof id === 'string') {
+            fetchNews();
+            fetchComments();
+        }
 
         const hash = window.location.hash;
              if (hash) {
@@ -145,7 +147,7 @@ export default function NewsDetailPage() {
       }
 
       const commentData: CommentData = {
-        news_id: Array.isArray(id) ? id[0] : id,
+        news_id: Array.isArray(id) ? id[0] || "" : id || "",
         user_name: userName,
         comment: newComment,
       };
@@ -254,7 +256,7 @@ export default function NewsDetailPage() {
           const { data, error } = await supabase
               .from("comments")
               .select("*")
-              .eq("news_id", id)
+              .eq("news_id", id as string)
               .order("created_at", { ascending: false });
 
           if (error) {
