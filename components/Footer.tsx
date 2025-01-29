@@ -48,13 +48,13 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Síguenos</h3>
             <div className="flex space-x-4">
-              <a href="https://facebook.com/dominicanbaseballplayers" className="text-blue-100 hover:text-white">
+              <a href="https://facebook.com/dominicanbaseballplayers" target="_blank" rel="noopener noreferrer" className="text-blue-100 hover:text-white">
                 <Facebook className="h-6 w-6" />
               </a>
-              <a href="https://twitter.com" className="text-blue-100 hover:text-white">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-blue-100 hover:text-white">
                 <Twitter className="h-6 w-6" />
               </a>
-              <a href="https://instagram.com/elpodcastdelidom/" className="text-blue-100 hover:text-white">
+              <a href="https://instagram.com/elpodcastdelidom/" target="_blank" rel="noopener noreferrer" className="text-blue-100 hover:text-white">
                 <Instagram className="h-6 w-6" />
               </a>
             </div>
