@@ -29,8 +29,6 @@ export default function NoticiasPage() {
     fetchNews();
   }, [currentPage]);
 
-  
-  
   const fetchNews = async () => {
     try {
       setIsLoading(true);
@@ -38,14 +36,15 @@ export default function NoticiasPage() {
       const to = from + itemsPerPage - 1;
 
       const { data: newsData, error, count } = await supabase
-        .from("news")
+        .from("news") // Asegura que `newsData` tenga el tipo `News[]`
         .select("*", { count: "exact" })
         .order("created_at", { ascending: false })
         .range(from, to);
 
       if (error) throw error;
 
-      setNews(newsData || []);
+      // Filtrar los datos para asegurarse de que cada item tenga la estructura correcta
+      setNews((newsData || []).filter((item): item is News => !!item.id && !!item.title && !!item.content && !!item.image_url));
       setTotalPages(Math.ceil((count || 0) / itemsPerPage));
     } catch (error) {
       console.error("Error fetching news:", error);
@@ -92,8 +91,6 @@ export default function NoticiasPage() {
           <>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 ">
               {news.map((item) => (
-
-                //cambiar el color de la tarjeta
                 <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow   ">
                   <div className="aspect-video w-full overflow-hidden ">
                     <img
@@ -112,7 +109,6 @@ export default function NoticiasPage() {
                     </h3>
                     <p className="text-white text-600 line-clamp-3  ">{item.content}</p>
                     <div className="mt-4 ">
-                      {/* Enlace a la página de detalle usando el ID */}
                       <Link href={`/noticias/${item.id}`} passHref>
                         <Button variant="outline" className="w-full">
                           Leer más
@@ -126,27 +122,27 @@ export default function NoticiasPage() {
 
             {/* Pagination */}
             <div className="mt-12 flex justify-center items-center space-x-4  ">
-  <Button
-    variant="outline"
-    className="bg-blue-700 text-white hover:bg-gray-800"
-    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-    disabled={currentPage === 1}
-  >
-    <ChevronLeft className="h-4 w-4 mr-2" />
-    Anterior
-  </Button>
-  <span className="text-gray-600 ">
-    Página {currentPage} de {totalPages}
-  </span>
-  <Button
-    variant="outline"
-    className="bg-blue-600 text-white hover:bg-blue-800"
-    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-    disabled={currentPage === totalPages}
-  >
-    Siguiente
-    <ChevronRight className="h-4 w-4 ml-2" />
-  </Button>
+              <Button
+                variant="outline"
+                className="bg-blue-700 text-white hover:bg-gray-800"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Anterior
+              </Button>
+              <span className="text-gray-600 ">
+                Página {currentPage} de {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                className="bg-blue-600 text-white hover:bg-blue-800"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Siguiente
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
             </div>
           </>
         )}
