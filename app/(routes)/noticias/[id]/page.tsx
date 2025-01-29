@@ -17,6 +17,7 @@ export default function NewsDetailPage() {
         image_url: string;
         video_url?: string;
         created_at: string;
+        category: string;
     }
     
     const [news, setNews] = useState<News | null>(null);
@@ -62,7 +63,7 @@ export default function NewsDetailPage() {
         const fetchNews = async () => {
           setLoading(true);
             try {
-                const { data, error } = await supabase
+                const { data, error }: { data: News | null, error: any } = await supabase
                     .from("news")
                     .select("*")
                     .eq("id", id)
@@ -71,8 +72,19 @@ export default function NewsDetailPage() {
                 if (error) {
                   console.error("Error fetching news:", error);
                    setError('Error fetching news. Please try again.')
-                } else {
-                    setNews(data as unknown as News);
+                    if (data) {
+                        setNews({
+                            id: data.id,
+                            title: data.title,
+                            content: data.content,
+                            image_url: data.image_url,
+                            video_url: data.video_url,
+                            created_at: data.created_at,
+                            category: data.category,
+                        });
+                    } else {
+                        setError('Error fetching news. Please try again.');
+                    }
                 }
             } catch (err) {
                 console.error("Unexpected error:", err);
