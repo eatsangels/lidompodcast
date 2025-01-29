@@ -20,7 +20,15 @@ export default function NewsDetailPage() {
     }
     
     const [news, setNews] = useState<News | null>(null);
-    const [comments, setComments] = useState([]);
+    interface Comment {
+        id: string;
+        user_name: string;
+        comment: string;
+        created_at: string;
+        likes: number;
+    }
+
+    const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
     const [userName, setUserName] = useState("");
     const [isExpanded, setIsExpanded] = useState(false);
@@ -64,7 +72,7 @@ export default function NewsDetailPage() {
                   console.error("Error fetching news:", error);
                    setError('Error fetching news. Please try again.')
                 } else {
-                    setNews(data);
+                    setNews(data as unknown as News);
                 }
             } catch (err) {
                 console.error("Unexpected error:", err);
@@ -88,7 +96,13 @@ export default function NewsDetailPage() {
                     setError('Error fetching comments. Please try again.')
 
                 } else {
-                    setComments(data);
+                    setComments(data.map((item) => ({
+                        id: item.id as string,
+                        user_name: item.user_name as string,
+                        comment: item.comment as string,
+                        created_at: item.created_at as string,
+                        likes: item.likes as number,
+                    })));
                 }
             } catch (err) {
                 console.error("Unexpected error:", err);
@@ -114,36 +128,47 @@ export default function NewsDetailPage() {
 
     }, [id]);
 
-    const handleCommentSubmit = async (e) => {
+    interface CommentData {
+      news_id: string;
+      user_name: string;
+      comment: string;
+    }
+
+    const handleCommentSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
       e.preventDefault();
 
       if (newComment.trim() === "" || userName.trim() === "") {
         alert("Por favor ingresa tu nombre y comentario.");
         return;
       }
-        const commentData = {
-          news_id: id,
-          user_name: userName,
-          comment: newComment,
-          // If this is reply, the reply_to id will be here
-        };
 
+      const commentData: CommentData = {
+        news_id: Array.isArray(id) ? id[0] : id,
+        user_name: userName,
+        comment: newComment,
+      };
 
-    const { error, data } = await supabase.from("comments").insert([commentData]).select().single();
+      const { error, data } = await supabase.from("comments").insert([commentData as unknown as Record<string, unknown>]).select().single();
 
-    if (error) {
-      console.error("Error adding comment:", error);
-       setError("Error adding comment. Please try again.")
-    } else {
-      setComments([data, ...comments]);
-       setNewComment("");
-      setUserName("");
+      if (error) {
+        console.error("Error adding comment:", error);
+        setError("Error adding comment. Please try again.");
+      } else {
+        setComments([{
+            id: data.id as string,
+            user_name: data.user_name as string,
+            comment: data.comment as string,
+            created_at: data.created_at as string,
+            likes: data.likes as number,
+        }, ...comments]);
+        setNewComment("");
+        setUserName("");
         if (commentInputRef.current) {
-          commentInputRef.current.value = "";
-          commentInputRef.current.focus();
+          (commentInputRef.current as HTMLTextAreaElement).value = "";
+          (commentInputRef.current as HTMLTextAreaElement).focus();
         }
-     }
-  };
+      }
+    };
 
     if (loading) {
         return <p className="text-center text-xl text-gray-500">Cargando...</p>;
@@ -161,7 +186,7 @@ export default function NewsDetailPage() {
         setIsExpanded(!isExpanded);
     };
 
-    const isYoutubeUrl = (url) => {
+    const isYoutubeUrl = (url: string) => {
         try {
             const videoUrl = new URL(url);
             return (
@@ -173,12 +198,12 @@ export default function NewsDetailPage() {
         }
     };
 
-    const getYoutubeEmbedUrl = (url) => {
+    const getYoutubeEmbedUrl = (url: string) => {
         try {
             const videoUrl = new URL(url);
             let videoId = "";
             if (videoUrl.hostname.includes("youtube.com")) {
-                videoId = videoUrl.searchParams.get("v");
+                videoId = videoUrl.searchParams.get("v") || "";
             } else if (videoUrl.hostname.includes("youtu.be")) {
                 videoId = videoUrl.pathname.slice(1);
             }
@@ -234,7 +259,13 @@ export default function NewsDetailPage() {
               console.error("Error fetching comments:", error);
                setError('Error fetching comments. Please try again.')
           } else {
-              setComments(data);
+              setComments(data.map((item) => ({
+                  id: item.id as string,
+                  user_name: item.user_name as string,
+                  comment: item.comment as string,
+                  created_at: item.created_at as string,
+                  likes: item.likes as number,
+              })));
           }
       } catch (err) {
            console.error("Unexpected error:", err);
@@ -244,7 +275,7 @@ export default function NewsDetailPage() {
     }
 
 
-  const handleLike = async (comment) => {
+  const handleLike = async (comment: Comment) => {
     if(!visitorId) return; //if visitor Id is not generated it should not like
 
       const likedKey = `liked_comment_${comment.id}_${visitorId}`;
