@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import EditNewsModal from "./EditNewsModal";
 import * as FingerprintJS from "@fingerprintjs/fingerprintjs";
 
-
 const supabase = createClient();
 
 export default function NewsDetailPage() {
@@ -18,7 +17,8 @@ export default function NewsDetailPage() {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    // Corregir la definición del estado error
+    const [error, setError] = useState<string | null>(null); // <-- Aquí está el cambio
     const router = useRouter();
     const commentRef = useRef(null);
     const commentInputRef = useRef(null);
