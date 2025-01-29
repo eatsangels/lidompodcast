@@ -22,7 +22,7 @@ export default function NewsDetailPage() {
     const router = useRouter();
     const commentRef = useRef(null);
     const commentInputRef = useRef(null);
-     const [visitorId, setVisitorId] = useState(null)
+    const [visitorId, setVisitorId] = useState<string | null>(null);
 
 
     useEffect(() => {

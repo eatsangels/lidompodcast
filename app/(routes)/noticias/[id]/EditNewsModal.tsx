@@ -54,7 +54,7 @@ const EditNewsModal: React.FC<EditNewsModalProps> = ({ isOpen, onClose, news, on
                     title: data.title,
                     content: data.content,
                     image_url: data.image_url,
-                    video_url: embedUrl || data.video_url,
+                    video_url: embedUrl || data.video_url || null,
                     category: data.category,
                 })
                 .eq("id", news.id);
