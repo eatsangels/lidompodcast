@@ -1,62 +1,89 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Table } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createClient } from "@/lib/supabase/client";
+
+type BattingStats = {
+  player: string;
+  position: string;
+  team: string;
+  games: string;
+  ab: string;
+  runs: string;
+  hits: string;
+  doubles: string;
+  triples: string;
+  hr: string;
+  rbi: string;
+  bb: string;
+  so: string;
+  sb: string;
+  cs: string;
+  avg: string;
+  obp: string;
+  slg: string;
+  ops: string;
+};
+
+type PitchingStats = {
+  player: string;
+  team: string;
+  games: string;
+  w: string;
+  l: string;
+  era: string;
+  gs: string;
+  sv: string;
+  ip: string;
+  h: string;
+  r: string;
+  er: string;
+  bb: string;
+  so: string;
+  whip: string;
+};
 
 export default function EstadisticaPage() {
-  const battingStats = [
-    {
-      player: "J.C.Escarra",
-      avg: ".363",
-      hr: "3",
-      rbi: "14",
-      runs: "22",
-      sb: "1",
-    },
-    {
-      player: "AderlinRodríguez",
-      avg: ".323",
-      hr: "8",
-      rbi: "28",
-      runs: "22",
-      sb: "1",
-    },
-    {
-      player: "Jerar Encarnacion",
-      avg: ".297",
-      hr: "34",
-      rbi: "24",
-      runs: "22",
-      sb: "12",
-    },
-  ];
+  const [battingStats, setBattingStats] = useState<BattingStats[]>([]);
+  const [pitchingStats, setPitchingStats] = useState<PitchingStats[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const pitchingStats = [
-    {
-      player: "Enny Romero",
-      era: "1.24",
-      w: "6",
-      l: "1",
-      so: "47",
-      saves: "0",
-    },
-    {
-      player: "Nabil Crismatt",
-      era: "2.65",
-      w: "5",
-      l: "2",
-      so: "49",
-      saves: "0",
-    },
-    
-    {
-      player: "Wily Peralta",
-      era: "2.85",
-      w: "2",
-      l: "5",
-      so: "30",
-      saves: "0",
-    },
-  ];
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const supabase = createClient();
+        
+        // Fetch batting stats
+        const { data: battingData, error: battingError } = await supabase
+          .from("batting_stats")
+          .select("*")
+          .order("avg", { ascending: false })
+          .limit(10);
+
+        if (battingError) throw battingError;
+        setBattingStats(battingData as BattingStats[] || []);
+
+        // Fetch pitching stats
+        const { data: pitchingData, error: pitchingError } = await supabase
+          .from("pitching_stats")
+          .select("*")
+          .order("era", { ascending: true })
+          .limit(10);
+
+        if (pitchingError) throw pitchingError;
+        setPitchingStats(pitchingData as PitchingStats[] || []);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -87,93 +114,121 @@ export default function EstadisticaPage() {
           
           <TabsContent value="batting">
             <Card className="p-6">
-              <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Bateo Lidom 2024-2025 </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4">Jugador</th>
-                      <th className="text-center py-3 px-4">AVG</th>
-                      <th className="text-center py-3 px-4">HR</th>
-                      <th className="text-center py-3 px-4">RBI</th>
-                      <th className="text-center py-3 px-4">R</th>
-                      <th className="text-center py-3 px-4">SB</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {battingStats.map((player, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="py-3 px-4">{player.player}</td>
-                        <td className="text-center py-3 px-4">{player.avg}</td>
-                        <td className="text-center py-3 px-4">{player.hr}</td>
-                        <td className="text-center py-3 px-4">{player.rbi}</td>
-                        <td className="text-center py-3 px-4">{player.runs}</td>
-                        <td className="text-center py-3 px-4">{player.sb}</td>
+              <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Bateo Lidom 2024-2025</h3>
+              {isLoading ? (
+                <div className="text-center py-8">Cargando estadísticas...</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4">Jugador</th>
+                        <th className="text-center py-3 px-4">Pos</th>
+                        <th className="text-center py-3 px-4">Equipo</th>
+                        <th className="text-center py-3 px-4">J</th>
+                        <th className="text-center py-3 px-4">TB</th>
+                        <th className="text-center py-3 px-4">C</th>
+                        <th className="text-center py-3 px-4">H</th>
+                        <th className="text-center py-3 px-4">2B</th>
+                        <th className="text-center py-3 px-4">3B</th>
+                        <th className="text-center py-3 px-4">HR</th>
+                        <th className="text-center py-3 px-4">CI</th>
+                        <th className="text-center py-3 px-4">BB</th>
+                        <th className="text-center py-3 px-4">P</th>
+                        <th className="text-center py-3 px-4">BR</th>
+                        <th className="text-center py-3 px-4">AR</th>
+                        <th className="text-center py-3 px-4">PRO</th>
+                        <th className="text-center py-3 px-4">OBP</th>
+                        <th className="text-center py-3 px-4">SLG</th>
+                        <th className="text-center py-3 px-4">OPS</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {battingStats.map((player, index) => (
+                        <tr key={index} className="border-b">
+                          <td className="py-3 px-4">{player.player}</td>
+                          <td className="text-center py-3 px-4">{player.position}</td>
+                          <td className="text-center py-3 px-4">{player.team}</td>
+                          <td className="text-center py-3 px-4">{player.games}</td>
+                          <td className="text-center py-3 px-4">{player.ab}</td>
+                          <td className="text-center py-3 px-4">{player.runs}</td>
+                          <td className="text-center py-3 px-4">{player.hits}</td>
+                          <td className="text-center py-3 px-4">{player.doubles}</td>
+                          <td className="text-center py-3 px-4">{player.triples}</td>
+                          <td className="text-center py-3 px-4">{player.hr}</td>
+                          <td className="text-center py-3 px-4">{player.rbi}</td>
+                          <td className="text-center py-3 px-4">{player.bb}</td>
+                          <td className="text-center py-3 px-4">{player.so}</td>
+                          <td className="text-center py-3 px-4">{player.sb}</td>
+                          <td className="text-center py-3 px-4">{player.cs}</td>
+                          <td className="text-center py-3 px-4">{player.avg}</td>
+                          <td className="text-center py-3 px-4">{player.obp}</td>
+                          <td className="text-center py-3 px-4">{player.slg}</td>
+                          <td className="text-center py-3 px-4">{player.ops}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </Card>
           </TabsContent>
           
           <TabsContent value="pitching">
             <Card className="p-6">
               <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Pitcheo Lidom 2024-2025</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4">Jugador</th>
-                      <th className="text-center py-3 px-4">ERA</th>
-                      <th className="text-center py-3 px-4">G</th>
-                      <th className="text-center py-3 px-4">P</th>
-                      <th className="text-center py-3 px-4">SO</th>
-                      <th className="text-center py-3 px-4">SV</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pitchingStats.map((player, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="py-3 px-4">{player.player}</td>
-                        <td className="text-center py-3 px-4">{player.era}</td>
-                        <td className="text-center py-3 px-4">{player.w}</td>
-                        <td className="text-center py-3 px-4">{player.l}</td>
-                        <td className="text-center py-3 px-4">{player.so}</td>
-                        <td className="text-center py-3 px-4">{player.saves}</td>
+              {isLoading ? (
+                <div className="text-center py-8">Cargando estadísticas...</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4">Jugador</th>
+                        <th className="text-center py-3 px-4">Equipo</th>
+                        <th className="text-center py-3 px-4">J</th>
+                        <th className="text-center py-3 px-4">G</th>
+                        <th className="text-center py-3 px-4">P</th>
+                        <th className="text-center py-3 px-4">EFE</th>
+                        <th className="text-center py-3 px-4">JI</th>
+                        <th className="text-center py-3 px-4">SV</th>
+                        <th className="text-center py-3 px-4">IP</th>
+                        <th className="text-center py-3 px-4">H</th>
+                        <th className="text-center py-3 px-4">C</th>
+                        <th className="text-center py-3 px-4">CL</th>
+                        <th className="text-center py-3 px-4">BB</th>
+                        <th className="text-center py-3 px-4">K</th>
+                        <th className="text-center py-3 px-4">WHIP</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {pitchingStats.map((player, index) => (
+                        <tr key={index} className="border-b">
+                          <td className="py-3 px-4">{player.player}</td>
+                          <td className="text-center py-3 px-4">{player.team}</td>
+                          <td className="text-center py-3 px-4">{player.games}</td>
+                          <td className="text-center py-3 px-4">{player.w}</td>
+                          <td className="text-center py-3 px-4">{player.l}</td>
+                          <td className="text-center py-3 px-4">{player.era}</td>
+                          <td className="text-center py-3 px-4">{player.gs}</td>
+                          <td className="text-center py-3 px-4">{player.sv}</td>
+                          <td className="text-center py-3 px-4">{player.ip}</td>
+                          <td className="text-center py-3 px-4">{player.h}</td>
+                          <td className="text-center py-3 px-4">{player.r}</td>
+                          <td className="text-center py-3 px-4">{player.er}</td>
+                          <td className="text-center py-3 px-4">{player.bb}</td>
+                          <td className="text-center py-3 px-4">{player.so}</td>
+                          <td className="text-center py-3 px-4">{player.whip}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Team Stats */}
-      {/* <div className="bg-blue-900 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg bg-white/5 p-8 text-center">
-              <div className="text-4xl font-bold text-white">.285</div>
-              <div className="mt-2 text-blue-100">Promedio de Bateo</div>
-            </div>
-            <div className="rounded-lg bg-white/5 p-8 text-center">
-              <div className="text-4xl font-bold text-white">3.25</div>
-              <div className="mt-2 text-blue-100">ERA del Equipo</div>
-            </div>
-            <div className="rounded-lg bg-white/5 p-8 text-center">
-              <div className="text-4xl font-bold text-white">85</div>
-              <div className="mt-2 text-blue-100">Home Runs</div>
-            </div>
-            <div className="rounded-lg bg-white/5 p-8 text-center">
-              <div className="text-4xl font-bold text-white">42</div>
-              <div className="mt-2 text-blue-100">Bases Robadas</div>
-            </div>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 }
