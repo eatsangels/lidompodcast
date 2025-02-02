@@ -105,7 +105,7 @@ export default function EstadisticaPage() {
       </div>
 
       {/* Stats Section */}
-      <div className="bg mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="bg mx-auto max-w-17xl px-4 py-16 sm:px-6 lg:px-8">
         <Tabs defaultValue="batting" className="w-full">
           <TabsList className="bg-blue-900 grid w-full grid-cols-2">
             <TabsTrigger value="batting">Bateo</TabsTrigger>
@@ -114,7 +114,7 @@ export default function EstadisticaPage() {
           
           <TabsContent value="batting">
             <Card className="p-6">
-              <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Bateo Lidom 2024-2025</h3>
+              <h3 className="text-3xl font-bold text-blue-900 mb-6">Líderes de Bateo Lidom 2024-2025</h3>
               {isLoading ? (
                 <div className="text-center py-8">Cargando estadísticas...</div>
               ) : (
