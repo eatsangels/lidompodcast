@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Table } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
+import { debounce } from "lodash";
 
 type BattingStats = {
   player: string;
@@ -50,40 +52,67 @@ export default function EstadisticaPage() {
   const [battingStats, setBattingStats] = useState<BattingStats[]>([]);
   const [pitchingStats, setPitchingStats] = useState<PitchingStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"batting" | "pitching">("batting");
+
+  const supabase = createClient();
+
+  const debounceSearch = useCallback(
+    debounce((query) => setDebouncedQuery(query), 500),
+    []
+  );
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const supabase = createClient();
-        
-        // Fetch batting stats
-        const { data: battingData, error: battingError } = await supabase
+    debounceSearch(searchQuery);
+    return () => debounceSearch.cancel();
+  }, [searchQuery, debounceSearch]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      
+      if (activeTab === "batting") {
+        let query = supabase
           .from("batting_stats")
           .select("*")
-          .order("avg", { ascending: false })
-          .limit(10);
+          .order("avg", { ascending: false });
 
-        if (battingError) throw battingError;
-        setBattingStats(battingData as BattingStats[] || []);
+        if (debouncedQuery) {
+          query = query.ilike("player", `%${debouncedQuery}%`);
+        } else {
+          query = query.limit(10);
+        }
 
-        // Fetch pitching stats
-        const { data: pitchingData, error: pitchingError } = await supabase
+        const { data, error } = await query;
+        if (error) throw error;
+        setBattingStats(data as BattingStats[] || []);
+      } else {
+        let query = supabase
           .from("pitching_stats")
           .select("*")
-          .order("era", { ascending: true })
-          .limit(10);
+          .order("era", { ascending: true });
 
-        if (pitchingError) throw pitchingError;
-        setPitchingStats(pitchingData as PitchingStats[] || []);
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-      } finally {
-        setIsLoading(false);
+        if (debouncedQuery) {
+          query = query.ilike("player", `%${debouncedQuery}%`);
+        } else {
+          query = query.limit(10);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        setPitchingStats(data as PitchingStats[] || []);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [activeTab, debouncedQuery, supabase]);
 
+  useEffect(() => {
     fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -100,13 +129,25 @@ export default function EstadisticaPage() {
             <p className="mx-auto mt-6 max-w-2xl text-xl text-blue-100">
               Rendimiento actualizado de nuestros jugadores en la temporada actual
             </p>
+            <div className="mt-8 max-w-2xl mx-auto">
+              <Input
+                placeholder="Buscar jugador por nombre..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-black/90 border-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Stats Section */}
       <div className="bg mx-auto max-w-17xl px-4 py-16 sm:px-6 lg:px-8">
-        <Tabs defaultValue="batting" className="w-full">
+        <Tabs 
+          defaultValue="batting" 
+          className="w-full"
+          onValueChange={(value) => setActiveTab(value as "batting" | "pitching")}
+        >
           <TabsList className="bg-blue-900 grid w-full grid-cols-2">
             <TabsTrigger value="batting">Bateo</TabsTrigger>
             <TabsTrigger value="pitching">Pitcheo</TabsTrigger>
@@ -114,9 +155,15 @@ export default function EstadisticaPage() {
           
           <TabsContent value="batting">
             <Card className="p-6">
-              <h3 className="text-3xl font-bold text-blue-900 mb-6">Líderes de Bateo Lidom 2024-2025</h3>
+              <h3 className="text-3xl font-bold text-blue-900 mb-6">
+                {debouncedQuery ? 
+                  `Resultados de búsqueda para "${debouncedQuery}"` : 
+                  "Líderes de Bateo Lidom 2024-2025"}
+              </h3>
               {isLoading ? (
                 <div className="text-center py-8">Cargando estadísticas...</div>
+              ) : battingStats.length === 0 ? (
+                <div className="text-center py-8">No se encontraron jugadores</div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -176,9 +223,15 @@ export default function EstadisticaPage() {
           
           <TabsContent value="pitching">
             <Card className="p-6">
-              <h3 className="text-2xl font-bold text-blue-900 mb-6">Líderes de Pitcheo Lidom 2024-2025</h3>
+              <h3 className="text-2xl font-bold text-blue-900 mb-6">
+                {debouncedQuery ? 
+                  `Resultados de búsqueda para "${debouncedQuery}"` : 
+                  "Líderes de Pitcheo Lidom 2024-2025"}
+              </h3>
               {isLoading ? (
                 <div className="text-center py-8">Cargando estadísticas...</div>
+              ) : pitchingStats.length === 0 ? (
+                <div className="text-center py-8">No se encontraron jugadores</div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
