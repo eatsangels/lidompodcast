@@ -1,49 +1,38 @@
 import { Newspaper, Radio, Podcast, Video } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { link } from "node:fs";
+
 
 export default function InfoMediaPage() {
-  const news = [
-    {
-      title: "Victoria Importante en Serie Regular",
-      date: "20 de Marzo, 2025",
-      category: "Noticias",
-      excerpt: "Los Lidom Podcast Show logran importante victoria...",
-    },
-    {
-      title: "Entrevista Exclusiva con el Manager",
-      date: "19 de Marzo, 2025",
-      category: "Entrevistas",
-      excerpt: "Conversamos con nuestro manager sobre la temporada...",
-    },
-    {
-      title: "Análisis del Último Juego",
-      date: "18 de Marzo, 2025",
-      category: "Análisis",
-      excerpt: "Desglose táctico del último encuentro...",
-    },
-  ];
+  
 
   const mediaTypes = [
     {
       title: "Noticias",
       icon: Newspaper,
-      description: "Últimas noticias y actualizaciones del equipo",
+      description: "Últimas noticias y actualizaciones del equipo y mucho más",
+      link: "/noticias",
+      
     },
     {
       title: "Radio",
       icon: Radio,
       description: "Transmisiones en vivo y programas de radio",
+      link: "/",
     },
     {
       title: "Podcast",
       icon: Podcast,
       description: "Análisis y entrevistas en profundidad",
+      link: "/multimedia",
     },
     {
       title: "Videos",
       icon: Video,
       description: "Highlights y contenido exclusivo",
+      link: "/multimedia",
     },
   ];
 
@@ -77,6 +66,9 @@ export default function InfoMediaPage() {
                   <Icon className="h-12 w-12 text-blue-900" />
                   <h3 className="mt-4 text-xl font-semibold">{type.title}</h3>
                   <p className="mt-2 text-gray-600">{type.description}</p>
+                  <Button asChild className="mt-4 bg-blue-900 text-white hover:bg-blue-800">
+                    <Link href={type.link}>Más Información</Link>
+                  </Button>
                 </div>
               </Card>
             );
@@ -84,30 +76,7 @@ export default function InfoMediaPage() {
         </div>
       </div>
 
-      {/* Latest News */}
-      <div className="bg-white py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-blue-900">Últimas Noticias</h2>
-          <div className="mt-8 grid gap-8 md:grid-cols-3">
-            {news.map((item) => (
-              <Card key={item.title} className="overflow-hidden">
-                <div className="p-6">
-                  <div className="text-sm text-gray-500">{item.date}</div>
-                  <div className="mt-1 inline-block rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-900">
-                    {item.category}
-                  </div>
-                  <h3 className="mt-4 text-xl font-semibold">
-                    <Link href="#" className="text-blue-900 hover:text-blue-700">
-                      {item.title}
-                    </Link>
-                  </h3>
-                  <p className="mt-2 text-gray-600">{item.excerpt}</p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
+     
     </div>
   );
 }
