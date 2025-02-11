@@ -101,10 +101,10 @@ export default function AdminNewsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-blue-900">Crear Noticias</h1>
-          <Button variant="outline" onClick={handleLogout}>
+          {/* <Button variant="outline" onClick={handleLogout}>
             <LogOut className="h-4 w-4 mr-2" />
             Cerrar Sesión
-          </Button>
+          </Button> */}
         </div>
 
         <Card className="p-6">
