@@ -90,7 +90,7 @@ export default function AuthPage() {
         <Card className="w-full max-w-md p-8 text-center">
           <h1 className="text-2xl font-bold text-blue-900 mb-8">Ya has iniciado sesión</h1>
           <Button onClick={() => router.push("/admin/noticias")} className="w-full">
-            Puedes Editar Noticias y Estadistica
+            Puedes Editar Noticias y Estadistica aquí
           </Button>
         </Card>
       </div>

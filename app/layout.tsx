@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { SessionProvider } from "@/components/SessionProvider";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,14 +29,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Envolvemos la aplicación en SessionProvider */}
-          <SessionProvider>
-            <Navigation />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
-          </SessionProvider>
+          <Navigation />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

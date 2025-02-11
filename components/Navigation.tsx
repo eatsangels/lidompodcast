@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { useSession } from "@/components/SessionProvider"; // Importamos el hook
 import {
   Home,
   BookOpen,
@@ -33,11 +32,40 @@ export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const session = useSession(); // Obtenemos la sesión del contexto
+
+  // Estado para guardar la sesión actual
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    // Chequea la sesión al cargar el componente
+    async function checkSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
+    }
+    checkSession();
+
+    // Escucha los cambios en la autenticación
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+      }
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    // El SessionProvider actualizará el estado automáticamente
+    try {
+      await supabase.auth.signOut();
+      router.push("/admin/login"); // Redirige al login después de cerrar sesión
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      alert("Hubo un problema al cerrar sesión");
+    }
   };
 
   return (
@@ -60,6 +88,7 @@ export default function Navigation() {
             </Link>
           </div>
 
+          {/* Espaciador */}
           <div className="flex-grow" />
 
           {/* Desktop Navigation */}
@@ -80,12 +109,12 @@ export default function Navigation() {
               </Link>
             ))}
 
-            {/* Mostrar botón de cerrar sesión solo si hay sesión activa */}
+            {/* Mostrar el botón de Logout solo si hay sesión */}
             {session && (
-              <Button
+              <Button 
                 variant="outline"
                 onClick={handleLogout}
-                className="bg-emerald-900 flex items-center text-white border-white hover:bg-red-700"
+                className="flex items-center bg-emerald-900 text-white border-white hover:bg-red-700"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Cerrar Sesión
@@ -127,6 +156,7 @@ export default function Navigation() {
                 </Link>
               ))}
 
+              {/* Botón de Logout en Mobile (solo si hay sesión) */}
               {session && (
                 <Button
                   variant="outline"

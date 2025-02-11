@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, Trophy, Calendar, Star, Users, MicVocal, Newspaper,  } from "lucide-react";
