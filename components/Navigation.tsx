@@ -25,6 +25,8 @@ const navItems = [
   { label: "InfoMedia", href: "/infomedia", icon: Newspaper },
   { label: "Multimedia", href: "/multimedia", icon: Image },
   { label: "Directivos", href: "/directivos", icon: UserCog },
+  { label: "En Vivo", href: "/livegames", icon: UserCog },
+
 ];
 
 export default function Navigation() {
