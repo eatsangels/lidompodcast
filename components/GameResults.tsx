@@ -1,210 +1,241 @@
 "use client";
 
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
-type GameResult = {
+type LiveGame = {
   id: string;
-  date: string;
   homeTeam: string;
   awayTeam: string;
   homeScore: number;
   awayScore: number;
-  homeHits: number;
-  awayHits: number;
-  homeErrors: number;
-  awayErrors: number;
-  winningPitcher?: string;
-  losingPitcher?: string;
-  savePitcher?: string;
-  status: "final" | "live" | "scheduled";
+  status: "pre" | "live" | "final";
+  startTime: string;
 };
 
-const daysOfWeek = ["DOM", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB"];
-const months = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-
 export default function GameResults() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [games, setGames] = useState<GameResult[]>([]);
+  const [games, setGames] = useState<LiveGame[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  // Estado para la fecha seleccionada; inicialmente "hoy" (YYYY-MM-DD)
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().slice(0, 10);
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 10;
 
-  const getDates = () => {
-    const dates = [];
-    for (let i = -3; i <= 3; i++) {
-      const date = new Date(selectedDate);
-      date.setDate(selectedDate.getDate() + i);
-      dates.push(date);
+  const supabase = createClient();
+
+  // Cada vez que cambie la fecha o la página, se cargan los juegos correspondientes
+  useEffect(() => {
+    fetchGames();
+  }, [selectedDate, currentPage]);
+
+  const fetchGames = async () => {
+    setIsLoading(true);
+    try {
+      // Se define el rango de fecha: desde selectedDate hasta el día siguiente.
+      const startDate = selectedDate; // "YYYY-MM-DD"
+      const endDateObj = new Date(selectedDate);
+      endDateObj.setDate(endDateObj.getDate() + 1);
+      const endDate = endDateObj.toISOString();
+
+      const { data, error, count } = await supabase
+        .from("live_games")
+        .select("*", { count: "exact" })
+        .eq("status", "final")
+        .gte("start_time", startDate)
+        .lt("start_time", endDate)
+        .order("start_time", { ascending: false })
+        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
+
+      if (error) throw error;
+      
+      setGames(
+        (data || []).map((game) => ({
+          id: game.id as string,
+          homeTeam: game.home_team as string,
+          awayTeam: game.away_team as string,
+          homeScore: game.home_score as number,
+          awayScore: game.away_score as number,
+          status: game.status as "pre" | "live" | "final",
+          startTime: game.start_time as string,
+        }))
+      );
+      setTotalCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    } finally {
+      setIsLoading(false);
     }
-    return dates;
   };
 
-  const formatDate = (date: Date) => {
-    return `${date.getDate()} ${months[date.getMonth()]}`;
+  // Actualiza la suscripción: si se actualiza un juego a "final" y su fecha coincide con la seleccionada, se actualiza el estado.
+  const setupSubscription = () => {
+    const channel = supabase
+      .channel("live_games_results")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "live_games" },
+        (payload) => {
+          if (payload.new.status === "final") {
+            const updatedDate = new Date(payload.new.start_time)
+              .toISOString()
+              .slice(0, 10);
+            if (updatedDate === selectedDate) {
+              const updatedGame: LiveGame = {
+                id: payload.new.id,
+                homeTeam: payload.new.home_team,
+                awayTeam: payload.new.away_team,
+                homeScore: payload.new.home_score,
+                awayScore: payload.new.away_score,
+                status: payload.new.status,
+                startTime: payload.new.start_time,
+              };
+              // Actualiza el listado: si ya existe, lo reemplaza; si no, lo agrega al inicio.
+              setGames((current) => {
+                const exists = current.find((game) => game.id === updatedGame.id);
+                if (exists) {
+                  return current.map((game) =>
+                    game.id === updatedGame.id ? updatedGame : game
+                  );
+                } else {
+                  return [updatedGame, ...current];
+                }
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   };
 
-  const handleDateChange = (direction: "prev" | "next") => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(selectedDate.getDate() + (direction === "next" ? 1 : -1));
-    setSelectedDate(newDate);
+  useEffect(() => {
+    const unsubscribe = setupSubscription();
+    return () => unsubscribe();
+  }, [selectedDate]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedDate(e.target.value);
+    setCurrentPage(1);
   };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      {/* Results Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-6">
-          <h2 className="text-2xl font-bold text-blue-900">Resultados</h2>
-          <h2 className="text-2xl font-bold text-gray-400">Calendario</h2>
+      {/* Encabezado con título y selector de fecha */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <h2 className="text-3xl font-bold text-blue-900 mb-4 md:mb-0">
+          Resultados Finales
+        </h2>
+        <div className="flex items-center gap-4">
+          <label htmlFor="date" className="text-gray-700">
+            Resultados por fecha:
+          </label>
+          <input
+            id="date"
+            type="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            className="border border-gray-300 rounded px-2 py-1"
+          />
         </div>
-        <Button variant="outline" size="icon" className="rounded-full">
-          <Calendar className="h-4 w-4" />
-        </Button>
       </div>
 
-      {/* Date Navigation */}
-      <div className="flex items-center justify-between mb-8 bg-white rounded-lg shadow-sm p-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleDateChange("prev")}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-900" />
+        </div>
+      ) : games.length === 0 ? (
+        <div className="text-center text-gray-500 py-4">
+          No hay resultados disponibles para la fecha seleccionada.
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-8 md:grid-cols-3 lg:grid-cols-3">
+            {games.map((game) => (
+              <Card key={game.id} className="overflow-hidden bg-red-900/100">
+                {/* Header con degradado similar a LiveScore */}
+                <div className="bg-gradient-to-r from-blue-900 to-red-800 p-4 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">
+                        {new Date(game.startTime).toLocaleDateString("es-ES", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium">Final</span>
+                    </div>
+                  </div>
+                </div>
+                {/* Contenido de la tarjeta */}
+                <div className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 text-center border-r-4 border-black pr-2 p-4">
+                        <div className="font-semibold text-white">
+                          {game.homeTeam}
+                        </div>
+                        <div className="text-3xl font-bold text-black">
+                          {game.homeScore}
+                        </div>
+                      </div>
+                      <div className="flex-1 text-center pl-2 p-4">
+                        <div className="font-semibold text-white">
+                          {game.awayTeam}
+                        </div>
+                        <div className="text-3xl font-bold text-black">
+                          {game.awayScore}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
 
-        <div className="flex items-center space-x-12">
-          {getDates().map((date, index) => {
-            const isSelected = date.toDateString() === selectedDate.toDateString();
-            const isToday = date.toDateString() === new Date().toDateString();
-            return (
+          {/* Controles de paginación */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center mt-8 gap-4">
               <button
-                key={date.toISOString()}
-                onClick={() => setSelectedDate(date)}
-                className={`flex flex-col items-center ${
-                  isSelected ? "text-blue-900" : "text-gray-500"
-                }`}
+                disabled={currentPage === 1}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.max(prev - 1, 1))
+                }
+                className="px-4 py-2 bg-blue-900 text-white rounded disabled:opacity-50"
               >
-                <span className="text-xs font-medium mb-1">
-                  {daysOfWeek[date.getDay()]}
-                </span>
-                <span className={`text-base font-bold ${isToday ? "text-blue-900" : ""}`}>
-                  {formatDate(date)}
-                </span>
-                {isSelected && (
-                  <div className="w-1.5 h-1.5 bg-blue-900 rounded-full mt-1.5" />
-                )}
+                Anterior
               </button>
-            );
-          })}
-        </div>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleDateChange("next")}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-      </div>
-
-      {/* Game Results */}
-      <Card className="bg-[#111827] text-white overflow-hidden">
-        <div className="p-4">
-          <div className="text-sm font-medium text-gray-400 mb-4">FINAL/11</div>
-          
-          <div className="grid grid-cols-12 gap-8">
-            {/* Team Names and Scores */}
-            <div className="col-span-3">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold">DR</span>
-                  </div>
-                  <span className="font-medium">DR</span>
-                  <span className="ml-auto text-sm">3 - 2</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold">VEN</span>
-                  </div>
-                  <span className="font-medium">VEN</span>
-                  <span className="ml-auto text-sm">2 - 3</span>
-                </div>
-              </div>
+              <span>
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() =>
+                  setCurrentPage((prev) =>
+                    Math.min(prev + 1, totalPages)
+                  )
+                }
+                className="px-4 py-2 bg-blue-900 text-white rounded disabled:opacity-50"
+              >
+                Siguiente
+              </button>
             </div>
-
-            {/* Stats */}
-            <div className="col-span-9">
-              <div className="grid grid-cols-6 gap-4 mb-6">
-                <div className="text-center">
-                  <div className="text-xs text-gray-400 mb-2">C</div>
-                  <div className="grid grid-cols-1 gap-4 text-sm">
-                    <div>5</div>
-                    <div>4</div>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-400 mb-2">H</div>
-                  <div className="grid grid-cols-1 gap-4 text-sm">
-                    <div>9</div>
-                    <div>10</div>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-400 mb-2">E</div>
-                  <div className="grid grid-cols-1 gap-4 text-sm">
-                    <div>0</div>
-                    <div>0</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Pitchers */}
-              <div className="grid grid-cols-2 gap-8 border-t border-gray-700 pt-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
-                    <span className="text-xs">G</span>
-                  </div>
-                  <div>
-                    <div className="text-sm">G: Joaquin</div>
-                    <div className="text-xs text-gray-400">1-0 0.00 EFE</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
-                    <span className="text-xs">P</span>
-                  </div>
-                  <div>
-                    <div className="text-sm">P: Scherff</div>
-                    <div className="text-xs text-gray-400">0-2 4.50 EFE</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Game Actions */}
-          <div className="mt-6 flex justify-center space-x-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-white border-gray-700 hover:bg-gray-700"
-            >
-              Resumen
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-white border-gray-700 hover:bg-gray-700"
-            >
-              Num.
-            </Button>
-          </div>
-        </div>
-      </Card>
+          )}
+        </>
+      )}
     </div>
   );
 }

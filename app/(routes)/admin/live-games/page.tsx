@@ -145,9 +145,9 @@ export default function AdminLiveGamesPage() {
       setIsCreating(true);
       const { error } = await supabase.from("live_games").insert([
         {
-          home_team: "Tigres del Licey",
-          away_team: "Águilas Cibaeñas",
-          start_time: "19:00",
+          home_team: "Águilas Cibaeñas",
+          away_team: "Tigres del Licey",
+          start_time: new Date().toISOString(),
           status: "pre",
         },
       ]);

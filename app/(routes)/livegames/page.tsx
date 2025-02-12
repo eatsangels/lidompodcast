@@ -14,7 +14,7 @@ export default function Home() {
 
       {/* Game Results Section */}
       <div className="bg-gray-50 py-12">
-        {/* <GameResults /> */}
+        <GameResults />
       </div>
 
       {/* Rest of the existing sections... */}
