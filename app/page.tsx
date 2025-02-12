@@ -14,7 +14,7 @@ export default function Home() {
           backgroundImage: "url('images/Fondo.jpg')",
         }}
       >
-        <div className="absolute  inset-0 bg-gradient-to-b  from-red-900/90  to-blue-800/70 " />
+        <div className="absolute  inset-0 bg-gradient-to-b  from-red-900/90  to-blue-800/70 shadow-lg shadow-blue-400" />
         <div className="relative mx-auto max-w-7xl px-4 py-32 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">

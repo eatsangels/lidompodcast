@@ -69,9 +69,9 @@ export default function MultimediaPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 ">
       {/* Hero Section */}
-      <div className="relative bg-blue-900 py-24">
+      <div className="relative bg-blue-900 py-24 shadow-xl shadow-blue-400">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-[url('/images/LP.jpg')] bg-cover bg-center opacity-10" />
         </div>
