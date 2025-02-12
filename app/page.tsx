@@ -9,7 +9,7 @@ export default function Home() {
     <div className="relative ">
       {/* Hero Section */}
       <div 
-        className="relative h-[800px] bg-cover bg-center "
+        className="relative h-[800px] bg-cover bg-center"
         style={{
           backgroundImage: "url('images/Fondo.jpg')",
         }}

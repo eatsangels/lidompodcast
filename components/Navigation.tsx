@@ -74,14 +74,14 @@ export default function Navigation() {
   return (
     <nav className="sticky top-0 z-50 w-full bg-gradient-to-t from-red-900/90 to-blue-800/70 text-red shadow-sm">
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between ">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <img
                 src="/images/logo.png"
                 alt="Lidom Podcast Show Logo"
-                className="relative h-16 w-16 rounded-full"
+                className="relative h-16 w-16 rounded-full shadow-inner shadow-blue-400" 
               />
               <span className="text-lg font-bold text-justify">Lidom</span>
               <span className="text-xl font-bold text-justify">
