@@ -380,8 +380,8 @@ export default function AdminLiveGamesPage() {
                             onClick={() => updateGame(game.id, { outs: out + 1 })}
                             className={`p-2 rounded-full ${
                               game.outs > out
-                                ? "bg-blue-900 text-white"
-                                : "bg-gray-200"
+                                ? "bg-red-900 text-white"
+                                : "bg-blue-900"
                             }`}
                           >
                             <Circle className="h-4 w-4" />
@@ -393,7 +393,7 @@ export default function AdminLiveGamesPage() {
                     <div>
                       <Label>Bases</Label>
                       <div className="flex space-x-4 mt-2">
-                        <Switch
+                        <Switch 
                           checked={game.firstBase}
                           onCheckedChange={(checked) =>
                             updateGame(game.id, { firstBase: checked })

@@ -249,13 +249,25 @@ export default function LiveScore() {
                     </div>
 
                     {/* Count */}
-                    <div className="text-center">
-                      <div className="text-sm text-gray-500 mb-2">Cuenta</div>
-                      <div className="font-mono text-lg">
-                        <span className="text-blue-900">{game.balls}</span>-
-                        <span className="text-red-500">{game.strikes}</span>
-                      </div>
-                    </div>
+                    <div className="text-center border  rounded-lg p-1 bg-gray-800 shadow-lg shadow-blue-600 ">
+  <div className="text-sm font-medium text-white mb-1">Conteo</div>
+  <div className="flex items-center justify-center space-x-2">
+    {/* Bolas */}
+    <div className="bg-blue-50 px-4 py-2 rounded-md">
+      <span className="text-xl font-bold text-blue-900">{game.balls}</span>
+      <span className="text-xs block mt-1 text-blue-600">BOLAS</span>
+    </div>
+    
+    {/* Separador */}
+    <div className="h-8 w-px bg-gray-200"></div>
+    
+    {/* Strikes */}
+    <div className="bg-red-50 px-2 py-2 rounded-md">
+      <span className="text-xl font-bold text-red-600">{game.strikes}</span>
+      <span className="text-xs block mt-1 text-red-500">STRIKES</span>
+    </div>
+  </div>
+</div>
                   </div>
                 </div>
               </div>
