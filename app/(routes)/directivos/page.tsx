@@ -22,7 +22,7 @@ export default function DirectivosPage() {
       position: "Web Developer",
       image: "/images/Edward_Trinidad.png",
       email: "alexandertrinidad@gmail.com",
-      phone: "(829) 959-0434",
+      phone: "(705) 988-6961",
     },
   ];
 
