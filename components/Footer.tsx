@@ -22,7 +22,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="https://elpodcastbaseball.myspreadshop.com/">
+                <Link href="https://elpodcastbaseball.myspreadshop.com/" target="_blank" rel="noopener noreferrer">
                   Tienda Oficial
                 </Link>
               </li>
