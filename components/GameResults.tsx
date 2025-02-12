@@ -155,7 +155,7 @@ export default function GameResults() {
           <Loader2 className="h-8 w-8 animate-spin text-blue-900" />
         </div>
       ) : games.length === 0 ? (
-        <div className="text-center text-gray-500 py-4">
+        <div className="text-2xl text-center text-gray-500 py-4 ">
           No hay resultados disponibles para la fecha seleccionada.
         </div>
       ) : (
