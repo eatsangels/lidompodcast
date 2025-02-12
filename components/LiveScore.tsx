@@ -120,12 +120,18 @@ export default function LiveScore() {
 
   if (liveGames.length === 0) {
     return (
-      <div className="w-full max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">No hay juegos en vivo</h2>
-          <p className="text-gray-600">Vuelve más tarde para ver los próximos juegos</p>
+      
+      <Card className="w-[480px] max-w-7xl mx-auto px-1 py-2 bg-gradient-to-b from-red-900/10  to-red-800/70  shadow-lg shadow-red-500" >
+        <img
+          src="images/fondo.jpg"
+          alt="card-image"
+          className="h-full w-full object-cover "
+        />
+        <div className="text-center py-8">
+          <h2 className="text-2xl font-bold text-white-900 mb-2">No hay juegos en vivo</h2>
+          <p className="text-white">Vuelve más tarde para ver los próximos juegos</p>
         </div>
-      </div>
+      </Card>
     );
   }
 
