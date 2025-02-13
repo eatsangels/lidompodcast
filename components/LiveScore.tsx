@@ -24,31 +24,30 @@ type LiveGame = {
   strikes: number;
 };
 
+// Función que retorna el logo del equipo según su nombre
+const getTeamStyle = (teamName: string) => {
+  switch (teamName.toLowerCase()) {
+    case "tigres del licey":
+      return { logo: "/logos/licey.png" };
+    case "águilas cibaeñas":
+      return { logo: "/logos/aguilas.png" };
+    case "toros":
+      return { logo: "/logos/toros.png" };
+    case "escogido":
+      return { logo: "/logos/escogido.png" };
+    case "gigantes del cibao":
+      return { logo: "/logos/gigantes.png" };
+    case "estrellas":
+      return { logo: "/logos/estrellas.png" };
+    default:
+      return { logo: "/logos/default.png" };
+  }
+};
+
 export default function LiveScore() {
   const [liveGames, setLiveGames] = useState<LiveGame[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
-
-  // Función que retorna las iniciales y el color de fondo según el nombre del equipo
-  const getTeamStyle = (teamName: string) => {
-    switch (teamName.toLowerCase()) {
-      case "tigres del licey":
-        return { initials: "LIC", bgColor: "bg-blue-900" };
-      case "águilas cibaeñas":
-      
-        return { initials: "AGU", bgColor: "bg-yellow-500" };
-      case "toros":
-        return { initials: "TE", bgColor: "bg-orange-500" };
-      case "escogido":
-        return { initials: "E", bgColor: "bg-red-500" };
-      case "gigantes del cibao":
-        return { initials: "G", bgColor: "bg-red-950" }; // Puedes ajustar el color según prefieras
-      case "estrellas":
-        return { initials: "EO", bgColor: "bg-green-500" };
-      default:
-        return { initials: teamName.slice(0, 3).toUpperCase(), bgColor: "bg-gray-500" };
-    }
-  };
 
   useEffect(() => {
     // Cargamos los datos iniciales
@@ -120,12 +119,11 @@ export default function LiveScore() {
 
   if (liveGames.length === 0) {
     return (
-      
-      <Card className="w-[480px] max-w-7xl mx-auto px-1 py-2 bg-gradient-to-b from-red-900/10  to-red-800/70  shadow-lg shadow-red-500" >
+      <Card className="w-[480px] max-w-7xl mx-auto px-1 py-2 bg-gradient-to-b from-red-900/10 to-red-800/70 shadow-lg shadow-red-500">
         <img
           src="images/fondo.jpg"
           alt="card-image"
-          className="h-full w-full object-cover "
+          className="h-full w-full object-cover"
         />
         <div className="text-center py-8">
           <h2 className="text-2xl font-bold text-white-900 mb-2">No hay juegos en vivo</h2>
@@ -175,26 +173,22 @@ export default function LiveScore() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-10 h-10 ${homeStyle.bgColor} rounded-full flex items-center justify-center`}
-                      >
-                        <span className="text-xs font-bold text-white">
-                          {homeStyle.initials}
-                        </span>
-                      </div>
+                      <img
+                        src={homeStyle.logo}
+                        alt={`${game.home_team} logo`}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
                       <span className="font-medium">{game.home_team}</span>
                     </div>
                     <span className="text-2xl font-bold">{game.home_score}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-10 h-10 ${awayStyle.bgColor} rounded-full flex items-center justify-center`}
-                      >
-                        <span className="text-xs font-bold text-white">
-                          {awayStyle.initials}
-                        </span>
-                      </div>
+                      <img
+                        src={awayStyle.logo}
+                        alt={`${game.away_team} logo`}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
                       <span className="font-medium">{game.away_team}</span>
                     </div>
                     <span className="text-2xl font-bold">{game.away_score}</span>
@@ -224,7 +218,6 @@ export default function LiveScore() {
                     <div className="text-center">
                       <div className="text-sm text-gray-500 mb-4">Bases</div>
                       <div className="relative w-8 h-8 mx-auto transform ">
-                        
                         {/* Second Base */}
                         <div
                           className={`absolute -top-2 left-1/2 transform rotate-45 -translate-x-1/2 w-4 h-4 ${
@@ -249,25 +242,25 @@ export default function LiveScore() {
                     </div>
 
                     {/* Count */}
-                    <div className="text-center border  rounded-lg p-1 bg-gray-800 shadow-lg shadow-blue-600 ">
-  <div className="text-sm font-medium text-white mb-1">Conteo</div>
-  <div className="flex items-center justify-center space-x-2">
-    {/* Bolas */}
-    <div className="bg-blue-50 px-4 py-2 rounded-md">
-      <span className="text-xl font-bold text-blue-900">{game.balls}</span>
-      <span className="text-xs block mt-1 text-blue-600">BOLAS</span>
-    </div>
-    
-    {/* Separador */}
-    <div className="h-8 w-px bg-gray-200"></div>
-    
-    {/* Strikes */}
-    <div className="bg-red-50 px-2 py-2 rounded-md">
-      <span className="text-xl font-bold text-red-600">{game.strikes}</span>
-      <span className="text-xs block mt-1 text-red-500">STRIKES</span>
-    </div>
-  </div>
-</div>
+                    <div className="text-center border rounded-lg p-1 bg-gray-800 shadow-lg shadow-blue-600">
+                      <div className="text-sm font-medium text-white mb-1">Conteo</div>
+                      <div className="flex items-center justify-center space-x-2">
+                        {/* Bolas */}
+                        <div className="bg-blue-50 px-4 py-2 rounded-md">
+                          <span className="text-xl font-bold text-blue-900">{game.balls}</span>
+                          <span className="text-xs block mt-1 text-blue-600">BOLAS</span>
+                        </div>
+
+                        {/* Separador */}
+                        <div className="h-8 w-px bg-gray-200"></div>
+
+                        {/* Strikes */}
+                        <div className="bg-red-50 px-2 py-2 rounded-md">
+                          <span className="text-xl font-bold text-red-600">{game.strikes}</span>
+                          <span className="text-xs block mt-1 text-red-500">STRIKES</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

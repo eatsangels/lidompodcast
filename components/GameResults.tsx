@@ -162,11 +162,11 @@ export default function GameResults() {
         <>
           <div className="grid gap-8 md:grid-cols-3 lg:grid-cols-3">
             {games.map((game) => (
-              <Card key={game.id} className="overflow-hidden bg-red-900/100">
+              <Card key={game.id} className="overflow-hidden bg-red-900/100 ">
                 {/* Header con degradado similar a LiveScore */}
                 <div className="bg-gradient-to-r from-blue-900 to-red-800 p-4 text-white">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 ">
                       <span className="text-sm">
                         {new Date(game.startTime).toLocaleDateString("es-ES", {
                           day: "numeric",

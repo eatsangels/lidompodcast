@@ -249,14 +249,14 @@ export default function AdminLiveGamesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen from-black/95 to-blue-900 bg-gradient-to-b bg-cover bg-center">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-blue-900">Juegos en Vivo</h1>
+          <h1 className="text-3xl font-bold text-blue-500 shadow-md shadow-red-500 rounded-xl p-4">Juegos en Vivo </h1>
           <Button
             onClick={createGame}
             disabled={isCreating}
-            className="bg-blue-900"
+            className="bg-blue-900 text-black"
           >
             {isCreating ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
