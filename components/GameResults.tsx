@@ -15,6 +15,25 @@ type LiveGame = {
   startTime: string;
 };
 
+const getTeamLogo = (teamName: string) => {
+  switch (teamName.toLowerCase()) {
+    case "tigres del licey":
+      return "/logos/licey.png";
+    case "águilas cibaeñas":
+      return "/logos/aguilas.png";
+    case "toros del este":
+      return "/logos/toros.png";
+    case "leones del escogido":
+      return "/logos/escogido.png";
+    case "gigantes del cibao":
+      return "/logos/gigantes.png";
+    case "estrellas orientales":
+      return "/logos/estrellas.png";
+    default:
+      return "/logos/default.png";
+  }
+};
+
 export default function GameResults() {
   const [games, setGames] = useState<LiveGame[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +72,7 @@ export default function GameResults() {
         .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
       if (error) throw error;
-      
+
       setGames(
         (data || []).map((game) => ({
           id: game.id as string,
@@ -73,7 +92,7 @@ export default function GameResults() {
     }
   };
 
-  // Actualiza la suscripción: si se actualiza un juego a "final" y su fecha coincide con la seleccionada, se actualiza el estado.
+  // Suscripción para actualizaciones a "final"
   const setupSubscription = () => {
     const channel = supabase
       .channel("live_games_results")
@@ -97,10 +116,10 @@ export default function GameResults() {
               };
               // Actualiza el listado: si ya existe, lo reemplaza; si no, lo agrega al inicio.
               setGames((current) => {
-                const exists = current.find((game) => game.id === updatedGame.id);
+                const exists = current.find((g) => g.id === updatedGame.id);
                 if (exists) {
-                  return current.map((game) =>
-                    game.id === updatedGame.id ? updatedGame : game
+                  return current.map((g) =>
+                    g.id === updatedGame.id ? updatedGame : g
                   );
                 } else {
                   return [updatedGame, ...current];
@@ -130,44 +149,63 @@ export default function GameResults() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      {/* Encabezado con título y selector de fecha */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h2 className="text-3xl font-bold text-blue-900 mb-4 md:mb-0">
-          Resultados Finales
-        </h2>
-        <div className="flex items-center gap-4">
-          <label htmlFor="date" className="text-gray-700">
-            Resultados por fecha:
-          </label>
-          <input
-            id="date"
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            className="border border-gray-300 rounded px-2 py-1"
+    <div className="relative min-h-screen bg-gradient-to-t from-blue-500/90 to-black py-10 px-4 overflow-hidden">
+      {/* Shape Divider Superior (invertido con rotate-180) */}
+      <div className="absolute inset-x-0 top-0 overflow-hidden leading-[0] rotate-180">
+        <svg
+          className="block w-full h-20 text-white"
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+        >
+          <path
+            fill="currentColor"
+            d="M0,64L48,80C96,96,192,128,288,154.7C384,181,480,203,576,208C672,213,768,203,864,181.3C960,160,1056,128,1152,133.3C1248,139,1344,181,1392,202.7L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
           />
+        </svg>
+      </div>
+
+      {/* Contenido */}
+      <div className="max-w-7xl mx-auto mb-10 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <h2 className="text-4xl font-extrabold text-white mb-6 md:mb-0">
+            Resultados Finales
+          </h2>
+          <div className="flex items-center gap-4">
+            <label htmlFor="date" className="text-white text-lg">
+              Resultados por fecha:
+            </label>
+            <input
+              id="date"
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              className="border border-gray-300 rounded px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+            />
+          </div>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-900" />
+        <div className="flex justify-center py-16 relative z-10">
+          <Loader2 className="h-12 w-12 animate-spin text-white" />
         </div>
       ) : games.length === 0 ? (
-        <div className="text-2xl text-center text-gray-500 py-4 ">
+        <div className="text-3xl text-center text-white py-10 relative z-10">
           No hay resultados disponibles para la fecha seleccionada.
         </div>
       ) : (
         <>
-          <div className="grid gap-8 md:grid-cols-3 lg:grid-cols-3">
+          <div className="max-w-7xl mx-auto grid gap-10 md:grid-cols-2 lg:grid-cols-3 relative z-10">
             {games.map((game) => (
-              <Card key={game.id} className="overflow-hidden bg-red-900/100 ">
-                {/* Header con degradado similar a LiveScore */}
-                <div className="bg-gradient-to-r from-blue-900 to-red-800 p-4 text-white">
+              <Card
+                key={game.id}
+                className="overflow-hidden rounded-2xl shadow-2xl transform transition duration-500 hover:scale-105"
+              >
+                {/* Header con degradado */}
+                <div className="bg-gradient-to-r from-blue-800 to-blue-600 p-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 ">
-                      <span className="text-sm">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-white">
                         {new Date(game.startTime).toLocaleDateString("es-ES", {
                           day: "numeric",
                           month: "short",
@@ -175,29 +213,39 @@ export default function GameResults() {
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium">Final</span>
+                      <span className="text-sm font-medium text-white">Final</span>
                     </div>
                   </div>
                 </div>
                 {/* Contenido de la tarjeta */}
-                <div className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 text-center border-r-4 border-black pr-2 p-4">
-                        <div className="font-semibold text-white">
-                          {game.homeTeam}
-                        </div>
-                        <div className="text-3xl font-bold text-black">
-                          {game.homeScore}
-                        </div>
+                <div className="p-6 bg-white">
+                  <div className="flex items-center justify-between">
+                    {/* Equipo local */}
+                    <div className="flex-1 text-center border-r border-gray-300 pr-4">
+                      <img
+                        src={getTeamLogo(game.homeTeam)}
+                        alt={`${game.homeTeam} logo`}
+                        className="w-14 h-14 rounded-full object-cover mx-auto mb-3"
+                      />
+                      <div className="font-semibold text-gray-800 text-lg">
+                        {game.homeTeam}
                       </div>
-                      <div className="flex-1 text-center pl-2 p-4">
-                        <div className="font-semibold text-white">
-                          {game.awayTeam}
-                        </div>
-                        <div className="text-3xl font-bold text-black">
-                          {game.awayScore}
-                        </div>
+                      <div className="text-4xl font-bold text-gray-900">
+                        {game.homeScore}
+                      </div>
+                    </div>
+                    {/* Equipo visitante */}
+                    <div className="flex-1 text-center pl-4">
+                      <img
+                        src={getTeamLogo(game.awayTeam)}
+                        alt={`${game.awayTeam} logo`}
+                        className="w-14 h-14 rounded-full object-cover mx-auto mb-3"
+                      />
+                      <div className="font-semibold text-gray-800 text-lg">
+                        {game.awayTeam}
+                      </div>
+                      <div className="text-4xl font-bold text-gray-900">
+                        {game.awayScore}
                       </div>
                     </div>
                   </div>
@@ -208,27 +256,23 @@ export default function GameResults() {
 
           {/* Controles de paginación */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center mt-8 gap-4">
+            <div className="max-w-7xl mx-auto flex items-center justify-center mt-10 gap-6 relative z-10">
               <button
                 disabled={currentPage === 1}
-                onClick={() =>
-                  setCurrentPage((prev) => Math.max(prev - 1, 1))
-                }
-                className="px-4 py-2 bg-blue-900 text-white rounded disabled:opacity-50"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-6 py-2 bg-blue-800 text-white rounded hover:bg-blue-700 transition disabled:opacity-50"
               >
                 Anterior
               </button>
-              <span>
+              <span className="text-xl text-white">
                 Página {currentPage} de {totalPages}
               </span>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() =>
-                  setCurrentPage((prev) =>
-                    Math.min(prev + 1, totalPages)
-                  )
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
-                className="px-4 py-2 bg-blue-900 text-white rounded disabled:opacity-50"
+                className="px-6 py-2 bg-blue-800 text-white rounded hover:bg-blue-700 transition disabled:opacity-50"
               >
                 Siguiente
               </button>
@@ -236,6 +280,20 @@ export default function GameResults() {
           )}
         </>
       )}
+
+      {/* Shape Divider Inferior */}
+      <div className="absolute inset-x-0 bottom-0 overflow-hidden leading-[0]">
+        <svg
+          className="block w-full h-32 text-white"
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+        >
+          <path
+            fill="currentColor"
+            d="M0,64L48,80C96,96,192,128,288,154.7C384,181,480,203,576,208C672,213,768,203,864,181.3C960,160,1056,128,1152,133.3C1248,139,1344,181,1392,202.7L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+          />
+        </svg>
+      </div>
     </div>
   );
 }

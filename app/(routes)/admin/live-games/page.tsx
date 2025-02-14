@@ -33,15 +33,6 @@ export default function AdminLiveGamesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const supabase = createClient();
-  const teams = [
-    "Águilas Cibaeñas",
-    "Tigres del Licey",
-    "Gigantes del Cibao",
-    "Estrellas Orientales",
-    "Leones del Escogido",
-    "Toros del Este"
-  ];
-  
 
   useEffect(() => {
     fetchGames();
@@ -154,8 +145,8 @@ export default function AdminLiveGamesPage() {
       setIsCreating(true);
       const { error } = await supabase.from("live_games").insert([
         {
-          home_team: teams[0],  // Primer equipo del array
-          away_team: teams[1],  // Segundo equipo del array
+          home_team: "Águilas Cibaeñas",
+          away_team: "Tigres del Licey",
           start_time: new Date().toISOString(),
           status: "pre",
         },
@@ -300,31 +291,25 @@ export default function AdminLiveGamesPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-  <div>
-    <Label>Equipo Local</Label>
-    <select
-      className="w-full mt-1 rounded-md border border-gray-300 p-2"
-      value={game.homeTeam}
-      onChange={(e) => updateGame(game.id, { homeTeam: e.target.value })}
-    >
-      {teams.map((team) => (
-        <option key={team} value={team}>{team}</option>
-      ))}
-    </select>
-  </div>
-  <div>
-    <Label>Equipo Visitante</Label>
-    <select
-      className="w-full mt-1 rounded-md border border-gray-300 p-2"
-      value={game.awayTeam}
-      onChange={(e) => updateGame(game.id, { awayTeam: e.target.value })}
-    >
-      {teams.map((team) => (
-        <option key={team} value={team}>{team}</option>
-      ))}
-    </select>
-  </div>
-</div>
+                      <div>
+                        <Label>Equipo Local</Label>
+                        <Input
+                          value={game.homeTeam}
+                          onChange={(e) =>
+                            updateGame(game.id, { homeTeam: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label>Equipo Visitante</Label>
+                        <Input
+                          value={game.awayTeam}
+                          onChange={(e) =>
+                            updateGame(game.id, { awayTeam: e.target.value })
+                          }
+                        />
+                      </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>

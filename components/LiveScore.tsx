@@ -200,14 +200,14 @@ export default function LiveScore() {
                   <div className="grid grid-cols-3 gap-4">
                     {/* Outs */}
                     <div className="text-center">
-                      <div className="text-sm text-gray-500 mb-2">Outs</div>
+                      <div className="text-lg text-gray-500 mb-2">Outs</div>
                       <div className="flex justify-center space-x-1">
                         {[...Array(3)].map((_, i) => (
                           <Circle
                             key={i}
-                            fill={i < game.outs ? "#1e3a8a" : "none"}
+                            fill={i < game.outs ? "#f44336" : "none"}
                             className={`h-4 w-4 ${
-                              i < game.outs ? "text-blue-900" : "text-gray-300"
+                              i < game.outs ? "text-red-900" : "text-gray-300"
                             }`}
                           />
                         ))}
@@ -215,8 +215,8 @@ export default function LiveScore() {
                     </div>
 
                     {/* Diamond */}
-                    <div className="text-center">
-                      <div className="text-sm text-gray-500 mb-4">Bases</div>
+                    <div className="text-center space-x-2 ">
+                      <div className="text-lg text-gray-500 mb-4 text-left ">Bases</div>
                       <div className="relative w-8 h-8 mx-auto transform ">
                         {/* Second Base */}
                         <div
@@ -243,7 +243,7 @@ export default function LiveScore() {
 
                     {/* Count */}
                     <div className="text-center border rounded-lg p-1 bg-gray-800 shadow-lg shadow-blue-600">
-                      <div className="text-sm font-medium text-white mb-1">Conteo</div>
+                      <div className="text-lg font-medium text-white mb-1">Conteo</div>
                       <div className="flex items-center justify-center space-x-2">
                         {/* Bolas */}
                         <div className="bg-blue-50 px-4 py-2 rounded-md">
