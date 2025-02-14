@@ -9,7 +9,6 @@ import { Switch } from "@/components/ui/switch";
 import { Circle, Plus, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-
 type LiveGame = {
   id: string;
   homeTeam: string;
@@ -28,10 +27,37 @@ type LiveGame = {
   strikes: number;
 };
 
+const transformGame = (game: any): LiveGame => ({
+  id: game.id,
+  homeTeam: game.home_team,
+  awayTeam: game.away_team,
+  homeScore: game.home_score,
+  awayScore: game.away_score,
+  inning: game.inning,
+  isTopInning: game.is_top_inning,
+  outs: game.outs,
+  firstBase: game.first_base,
+  secondBase: game.second_base,
+  thirdBase: game.third_base,
+  status: game.status,
+  startTime: game.start_time,
+  balls: game.balls,
+  strikes: game.strikes,
+});
+
 export default function AdminLiveGamesPage() {
   const [games, setGames] = useState<LiveGame[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const [totalGames, setTotalGames] = useState(0);
+  // Filtro por fecha (formato YYYY-MM-DD)
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+
   const supabase = createClient();
   const teams = [
     "Águilas Cibaeñas",
@@ -39,106 +65,47 @@ export default function AdminLiveGamesPage() {
     "Gigantes del Cibao",
     "Estrellas Orientales",
     "Leones del Escogido",
-    "Toros del Este"
+    "Toros del Este",
   ];
-  
 
+  // Se vuelve a cargar la lista cada vez que cambia la página o la fecha seleccionada
   useEffect(() => {
     fetchGames();
-    setupSubscription();
-  }, []);
+  }, [currentPage, selectedDate]);
 
-  const fetchGames = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("live_games")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setGames(
-        (data || []).map((game) => ({
-          id: game.id as string,
-          homeTeam: game.home_team as string,
-          awayTeam: game.away_team as string,
-          homeScore: game.home_score as number,
-          awayScore: game.away_score as number,
-          inning: game.inning as number,
-          isTopInning: game.is_top_inning as boolean,
-          outs: game.outs as number,
-          firstBase: game.first_base as boolean,
-          secondBase: game.second_base as boolean,
-          thirdBase: game.third_base as boolean,
-          status: game.status as "pre" | "live" | "final",
-          startTime: game.start_time as string,
-          balls: game.balls as number,
-          strikes: game.strikes as number,
-        }))
-      );
-    } catch (error) {
-      console.error("Error fetching games:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const setupSubscription = () => {
+  // Suscripción para manejar cambios sin refrescar toda la lista
+  useEffect(() => {
     const channel = supabase
       .channel("live_games_changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "live_games" },
         (payload) => {
-          // Nota: si prefieres confiar en la suscripción para actualizar la UI,
-          // asegúrate de transformar payload.new de snake_case a camelCase.
           if (payload.eventType === "INSERT") {
-            const newGame = payload.new;
-            const transformedGame: LiveGame = {
-              id: newGame.id,
-              homeTeam: newGame.home_team,
-              awayTeam: newGame.away_team,
-              homeScore: newGame.home_score,
-              awayScore: newGame.away_score,
-              inning: newGame.inning,
-              isTopInning: newGame.is_top_inning,
-              outs: newGame.outs,
-              firstBase: newGame.first_base,
-              secondBase: newGame.second_base,
-              thirdBase: newGame.third_base,
-              status: newGame.status,
-              startTime: newGame.start_time,
-              balls: newGame.balls,
-              strikes: newGame.strikes,
-            };
-            setGames((current) => [transformedGame, ...current]);
+            const newGameData = payload.new;
+            // Usamos ilike para comparar la fecha (formato ISO)
+            if (
+              newGameData.start_time &&
+              newGameData.start_time.startsWith(selectedDate)
+            ) {
+              if (currentPage === 1) {
+                setGames((current) =>
+                  [transformGame(newGameData), ...current].slice(0, pageSize)
+                );
+              }
+              setTotalGames((prev) => prev + 1);
+            }
           } else if (payload.eventType === "UPDATE") {
-            const updated = payload.new;
-            const transformedGame: LiveGame = {
-              id: updated.id,
-              homeTeam: updated.home_team,
-              awayTeam: updated.away_team,
-              homeScore: updated.home_score,
-              awayScore: updated.away_score,
-              inning: updated.inning,
-              isTopInning: updated.is_top_inning,
-              outs: updated.outs,
-              firstBase: updated.first_base,
-              secondBase: updated.second_base,
-              thirdBase: updated.third_base,
-              status: updated.status,
-              startTime: updated.start_time,
-              balls: updated.balls,
-              strikes: updated.strikes,
-            };
             setGames((current) =>
               current.map((game) =>
-                game.id === transformedGame.id ? transformedGame : game
+                game.id === payload.new.id ? transformGame(payload.new) : game
               )
             );
           } else if (payload.eventType === "DELETE") {
             setGames((current) =>
               current.filter((game) => game.id !== payload.old.id)
             );
+            setTotalGames((prev) => prev - 1);
           }
         }
       )
@@ -147,20 +114,58 @@ export default function AdminLiveGamesPage() {
     return () => {
       supabase.removeChannel(channel);
     };
+  }, [selectedDate, currentPage]);
+
+  const fetchGames = async () => {
+    setIsLoading(true);
+    try {
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize - 1;
+  
+      // Definimos el rango de fecha (UTC) para el día seleccionado.
+      // Por ejemplo, si selectedDate es "2025-02-14", se buscará entre:
+      // "2025-02-14T00:00:00Z" y "2025-02-14T23:59:59.999Z"
+      const startDate = new Date(selectedDate + "T00:00:00Z");
+      const endDate = new Date(selectedDate + "T23:59:59.999Z");
+  
+      const { data, error, count } = await supabase
+        .from("live_games")
+        .select("*", { count: "exact" })
+        .gte("start_time", startDate.toISOString())
+        .lte("start_time", endDate.toISOString())
+        .order("created_at", { ascending: false })
+        .range(start, end);
+  
+      if (error) throw error;
+      setGames((data || []).map(transformGame));
+      setTotalGames(count ?? 0);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+  
 
   const createGame = async () => {
     try {
       setIsCreating(true);
       const { error } = await supabase.from("live_games").insert([
         {
-          home_team: teams[0],  // Primer equipo del array
-          away_team: teams[1],  // Segundo equipo del array
+          home_team: teams[0],
+          away_team: teams[1],
+          // Se utiliza new Date().toISOString() (formato ISO) para que coincida con el filtro
           start_time: new Date().toISOString(),
           status: "pre",
         },
       ]);
       if (error) throw error;
+      // Si no estamos en la página 1, volvemos a la página 1
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        fetchGames();
+      }
     } catch (error) {
       console.error("Error creating game:", error);
       alert("Error al crear el juego");
@@ -170,76 +175,66 @@ export default function AdminLiveGamesPage() {
   };
 
   const updateGame = async (id: string, updates: Partial<LiveGame>) => {
-    // Encontrar el juego actual para acceder a su estado
-    const currentGame = games.find(game => game.id === id);
+    const currentGame = games.find((game) => game.id === id);
     if (!currentGame) return;
-  
+
     let finalUpdates = { ...updates };
-  
-    // Lógica de limpieza al alcanzar 3 outs
-    if (updates.outs !== undefined) {
-      if (updates.outs === 3) {
-        finalUpdates = {
-          ...finalUpdates,
-          outs: 0, // Reiniciar contador de outs
-          firstBase: false, // Limpiar bases
-          secondBase: false,
-          thirdBase: false,
-          balls: 0, // Reiniciar conteo de lanzamientos
-          strikes: 0,
-          isTopInning: !currentGame.isTopInning, // Cambiar de mitad de entrada
-        };
-      }
+
+    if (updates.outs !== undefined && updates.outs === 3) {
+      finalUpdates = {
+        ...finalUpdates,
+        outs: 0,
+        firstBase: false,
+        secondBase: false,
+        thirdBase: false,
+        balls: 0,
+        strikes: 0,
+        isTopInning: !currentGame.isTopInning,
+      };
     }
-  
-    // Convertir a snake_case
+
     const snakeCaseUpdates: any = {};
-    if (finalUpdates.homeTeam !== undefined) snakeCaseUpdates.home_team = finalUpdates.homeTeam;
-    if (finalUpdates.awayTeam !== undefined) snakeCaseUpdates.away_team = finalUpdates.awayTeam;
-    if (finalUpdates.homeScore !== undefined) snakeCaseUpdates.home_score = finalUpdates.homeScore;
-    if (finalUpdates.awayScore !== undefined) snakeCaseUpdates.away_score = finalUpdates.awayScore;
-    if (finalUpdates.inning !== undefined) snakeCaseUpdates.inning = finalUpdates.inning;
-    if (finalUpdates.isTopInning !== undefined) snakeCaseUpdates.is_top_inning = finalUpdates.isTopInning;
-    if (finalUpdates.outs !== undefined) snakeCaseUpdates.outs = finalUpdates.outs;
-    if (finalUpdates.firstBase !== undefined) snakeCaseUpdates.first_base = finalUpdates.firstBase;
-    if (finalUpdates.secondBase !== undefined) snakeCaseUpdates.second_base = finalUpdates.secondBase;
-    if (finalUpdates.thirdBase !== undefined) snakeCaseUpdates.third_base = finalUpdates.thirdBase;
-    if (finalUpdates.status !== undefined) snakeCaseUpdates.status = finalUpdates.status;
-    if (finalUpdates.startTime !== undefined) snakeCaseUpdates.start_time = finalUpdates.startTime;
-    if (finalUpdates.balls !== undefined) snakeCaseUpdates.balls = finalUpdates.balls;
-    if (finalUpdates.strikes !== undefined) snakeCaseUpdates.strikes = finalUpdates.strikes;
-  
+    if (finalUpdates.homeTeam !== undefined)
+      snakeCaseUpdates.home_team = finalUpdates.homeTeam;
+    if (finalUpdates.awayTeam !== undefined)
+      snakeCaseUpdates.away_team = finalUpdates.awayTeam;
+    if (finalUpdates.homeScore !== undefined)
+      snakeCaseUpdates.home_score = finalUpdates.homeScore;
+    if (finalUpdates.awayScore !== undefined)
+      snakeCaseUpdates.away_score = finalUpdates.awayScore;
+    if (finalUpdates.inning !== undefined)
+      snakeCaseUpdates.inning = finalUpdates.inning;
+    if (finalUpdates.isTopInning !== undefined)
+      snakeCaseUpdates.is_top_inning = finalUpdates.isTopInning;
+    if (finalUpdates.outs !== undefined)
+      snakeCaseUpdates.outs = finalUpdates.outs;
+    if (finalUpdates.firstBase !== undefined)
+      snakeCaseUpdates.first_base = finalUpdates.firstBase;
+    if (finalUpdates.secondBase !== undefined)
+      snakeCaseUpdates.second_base = finalUpdates.secondBase;
+    if (finalUpdates.thirdBase !== undefined)
+      snakeCaseUpdates.third_base = finalUpdates.thirdBase;
+    if (finalUpdates.status !== undefined)
+      snakeCaseUpdates.status = finalUpdates.status;
+    if (finalUpdates.startTime !== undefined)
+      snakeCaseUpdates.start_time = finalUpdates.startTime;
+    if (finalUpdates.balls !== undefined)
+      snakeCaseUpdates.balls = finalUpdates.balls;
+    if (finalUpdates.strikes !== undefined)
+      snakeCaseUpdates.strikes = finalUpdates.strikes;
+
     try {
       const { data, error } = await supabase
         .from("live_games")
         .update(snakeCaseUpdates)
         .eq("id", id)
         .select();
-  
+
       if (error) throw error;
-  
       if (data && data.length > 0) {
-        const updatedRow = data[0];
-        const updatedGame: LiveGame = {
-          id: updatedRow.id as string,
-          homeTeam: updatedRow.home_team as string,
-          awayTeam: updatedRow.away_team as string,
-          homeScore: updatedRow.home_score as number,
-          awayScore: updatedRow.away_score as number,
-          inning: updatedRow.inning as number,
-          isTopInning: updatedRow.is_top_inning as boolean,
-          outs: updatedRow.outs as number,
-          firstBase: updatedRow.first_base as boolean,
-          secondBase: updatedRow.second_base as boolean,
-          thirdBase: updatedRow.third_base as boolean,
-          status: updatedRow.status as "pre" | "live" | "final",
-          startTime: updatedRow.start_time as string,
-          balls: updatedRow.balls as number,
-          strikes: updatedRow.strikes as number,
-        };
-  
-        setGames(current => 
-          current.map(game => game.id === id ? updatedGame : game)
+        const updatedGame: LiveGame = transformGame(data[0]);
+        setGames((current) =>
+          current.map((game) => (game.id === id ? updatedGame : game))
         );
       }
     } catch (error) {
@@ -247,7 +242,8 @@ export default function AdminLiveGamesPage() {
       alert("Error al actualizar el juego");
     }
   };
-  
+
+  const totalPages = Math.ceil(totalGames / pageSize) || 1;
 
   if (isLoading) {
     return (
@@ -261,28 +257,47 @@ export default function AdminLiveGamesPage() {
     <div className="min-h-screen from-black/95 to-blue-900 bg-gradient-to-b bg-cover bg-center">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-blue-500 shadow-md shadow-red-500 rounded-xl p-4">Juegos en Vivo </h1>
-          <Button
-            onClick={createGame}
-            disabled={isCreating}
-            className="bg-blue-900 text-black"
-          >
-            {isCreating ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Plus className="h-4 w-4 mr-2" />
-            )}
-            Nuevo Juego
-          </Button>
+          <h1 className="text-3xl font-bold text-blue-500 shadow-md shadow-red-500 rounded-xl p-4">
+            Juegos en Vivo
+          </h1>
+          <div className="flex space-x-4 items-center">
+            <Label htmlFor="dateFilter" className="text-white">
+              Fecha:
+            </Label>
+            <Input
+              id="dateFilter"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => {
+                setSelectedDate(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="rounded-md border border-gray-300 p-2"
+            />
+            <Button
+              onClick={createGame}
+              disabled={isCreating}
+              className="bg-blue-900 text-black"
+            >
+              {isCreating ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Plus className="h-4 w-4 mr-2" />
+              )}
+              Nuevo Juego
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-8">
           {games.map((game) => (
             <Card key={game.id} className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Game Info */}
+                {/* Información del Juego */}
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">Información del Juego</h3>
+                  <h3 className="text-xl font-semibold mb-4">
+                    Información del Juego
+                  </h3>
                   <div className="space-y-4">
                     <div>
                       <Label>Estado</Label>
@@ -290,7 +305,9 @@ export default function AdminLiveGamesPage() {
                         className="w-full mt-1 rounded-md border border-gray-300 p-2"
                         value={game.status}
                         onChange={(e) =>
-                          updateGame(game.id, { status: e.target.value as LiveGame["status"] })
+                          updateGame(game.id, {
+                            status: e.target.value as LiveGame["status"],
+                          })
                         }
                       >
                         <option value="pre">Pre-juego</option>
@@ -300,31 +317,39 @@ export default function AdminLiveGamesPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-  <div>
-    <Label>Equipo Local</Label>
-    <select
-      className="w-full mt-1 rounded-md border border-gray-300 p-2"
-      value={game.homeTeam}
-      onChange={(e) => updateGame(game.id, { homeTeam: e.target.value })}
-    >
-      {teams.map((team) => (
-        <option key={team} value={team}>{team}</option>
-      ))}
-    </select>
-  </div>
-  <div>
-    <Label>Equipo Visitante</Label>
-    <select
-      className="w-full mt-1 rounded-md border border-gray-300 p-2"
-      value={game.awayTeam}
-      onChange={(e) => updateGame(game.id, { awayTeam: e.target.value })}
-    >
-      {teams.map((team) => (
-        <option key={team} value={team}>{team}</option>
-      ))}
-    </select>
-  </div>
-</div>
+                      <div>
+                        <Label>Equipo Local</Label>
+                        <select
+                          className="w-full mt-1 rounded-md border border-gray-300 p-2"
+                          value={game.homeTeam}
+                          onChange={(e) =>
+                            updateGame(game.id, { homeTeam: e.target.value })
+                          }
+                        >
+                          {teams.map((team) => (
+                            <option key={team} value={team}>
+                              {team}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <Label>Equipo Visitante</Label>
+                        <select
+                          className="w-full mt-1 rounded-md border border-gray-300 p-2"
+                          value={game.awayTeam}
+                          onChange={(e) =>
+                            updateGame(game.id, { awayTeam: e.target.value })
+                          }
+                        >
+                          {teams.map((team) => (
+                            <option key={team} value={team}>
+                              {team}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -355,9 +380,11 @@ export default function AdminLiveGamesPage() {
                   </div>
                 </div>
 
-                {/* Game Status */}
+                {/* Estado del Juego */}
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">Estado del Juego</h3>
+                  <h3 className="text-xl font-semibold mb-4">
+                    Estado del Juego
+                  </h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -392,7 +419,9 @@ export default function AdminLiveGamesPage() {
                         {[0, 1, 2].map((out) => (
                           <button
                             key={out}
-                            onClick={() => updateGame(game.id, { outs: out + 1 })}
+                            onClick={() =>
+                              updateGame(game.id, { outs: out + 1 })
+                            }
                             className={`p-2 rounded-full ${
                               game.outs > out
                                 ? "bg-red-900 text-white"
@@ -408,7 +437,7 @@ export default function AdminLiveGamesPage() {
                     <div>
                       <Label>Bases</Label>
                       <div className="flex space-x-4 mt-2">
-                        <Switch 
+                        <Switch
                           checked={game.firstBase}
                           onCheckedChange={(checked) =>
                             updateGame(game.id, { firstBase: checked })
@@ -464,6 +493,29 @@ export default function AdminLiveGamesPage() {
               </div>
             </Card>
           ))}
+        </div>
+
+        {/* Controles de paginación */}
+        <div className="flex items-center justify-between mt-8">
+          <Button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="bg-blue-900 text-white"
+          >
+            Anterior
+          </Button>
+          <span className="text-white">
+            Página {currentPage} de {totalPages}
+          </span>
+          <Button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="bg-blue-900 text-white"
+          >
+            Siguiente
+          </Button>
         </div>
       </div>
     </div>
