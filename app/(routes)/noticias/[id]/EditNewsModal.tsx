@@ -134,6 +134,8 @@ const EditNewsModal = ({ isOpen, onClose, news, onEditSuccess }: EditNewsModalPr
                          <option value="partidos">Partidos</option>
                           <option value="fanaticos">Fanáticos</option>
                          <option value="lidom">Lidom</option>
+                         <option value="MLB">MLB</option>
+
                        </select>
                        {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>}
                      </div>
