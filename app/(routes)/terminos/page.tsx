@@ -16,7 +16,7 @@ export default function TermsPage() {
           <img
             src="https://seeklogo.com/images/L/lidom-logo-2612AD5687-seeklogo.com.png"
             alt="Lidom Logo Watermark"
-            className="h-screen w-screen object-contain h-auto"
+            className="h-screen w-screen object-contain "
           />
         </div>
         {/* Content */}
