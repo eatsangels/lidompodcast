@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import Script from "next/script";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,6 +22,12 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/images/favicon.ico" />
+        {/* Script de Umami Analytics */}
+        <Script
+          strategy="lazyOnload"
+          src="https://cloud.umami.is/script.js"
+          data-website-id="6dc48438-aadc-4152-8587-5d3293c92011"
+        />
       </head>
       <body className={inter.className}>
         <ThemeProvider
