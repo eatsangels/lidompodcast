@@ -31,13 +31,13 @@ const getTeamStyle = (teamName: string) => {
       return { logo: "/logos/licey.png" };
     case "águilas cibaeñas":
       return { logo: "/logos/aguilas.png" };
-    case "toros":
+    case "toros del este":
       return { logo: "/logos/toros.png" };
-    case "escogido":
+    case "leones del escogido":
       return { logo: "/logos/escogido.png" };
     case "gigantes del cibao":
       return { logo: "/logos/gigantes.png" };
-    case "estrellas":
+    case "estrellas orientales":
       return { logo: "/logos/estrellas.png" };
     default:
       return { logo: "/logos/default.png" };
