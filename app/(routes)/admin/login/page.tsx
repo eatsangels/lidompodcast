@@ -86,7 +86,7 @@ export default function AuthPage() {
   // Si ya hay una sesión activa, mostramos un mensaje y un botón para ir al panel
   if (session) {
     return (
-      <div className="min-h-screen bg-black-50 bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b  from-red-900/90  to-blue-800  flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8 text-center">
           <h1 className="text-2xl font-bold text-blue-900 mb-8">Ya has iniciado sesión</h1>
           <Button onClick={() => router.push("/admin/noticias")} className="w-full">
@@ -99,20 +99,20 @@ export default function AuthPage() {
 
   // Si no hay sesión, se muestra el formulario de autenticación
   return (
-    <div className="min-h-screen bg-black-50 bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen  bg-gradient-to-b  from-red-900/90  to-blue-800/70 shadow-lg shadow-blue-400 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8">
         <h1 className="text-2xl font-bold text-blue-900 text-center mb-8">
           {isRegistering ? "Registrarse" : "Iniciar Sesión"}
         </h1>
 
         {successMessage && (
-          <div className="bg-green-100 text-green-700 p-3 rounded mb-4 text-center">
+          <div className="bg-green-100 text-lg text-green-700 p-3 rounded mb-4 text-center">
             {successMessage}
           </div>
         )}
 
         {errorMessage && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4 text-center">
+          <div className="bg-red-900 text-lg text-white p-3 rounded mb-4 text-center">
             {errorMessage}
           </div>
         )}
