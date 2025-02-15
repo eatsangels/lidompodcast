@@ -11,7 +11,7 @@ export default function Home() {
       <div 
         className="relative h-[800px] bg-cover bg-center"
         style={{
-          backgroundImage: "url('/images/Fondo.png')",
+          backgroundImage: "url('/images/Fondo.jpg')",
         }}
       >
         <div className="absolute  inset-0 bg-gradient-to-b  from-red-900/90  to-blue-800/70 shadow-lg shadow-blue-400" />
