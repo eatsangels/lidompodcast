@@ -13,9 +13,10 @@ import {
   BarChart,
   Users,
   Newspaper,
-  Image,
+  Image as LucideImage,
   UserCog,
 } from "lucide-react";
+import NextImage from "next/image";
 
 const navItems = [
   { label: "Inicio", href: "/", icon: Home },
@@ -24,10 +25,8 @@ const navItems = [
   { label: "Estadística", href: "/estadistica", icon: BarChart },
   { label: "Comunidad", href: "/comunidad", icon: Users },
   { label: "InfoMedia", href: "/infomedia", icon: Newspaper },
-  { label: "Multimedia", href: "/multimedia", icon: Image },
+  { label: "Multimedia", href: "/multimedia", icon: LucideImage },
   { label: "Directivos", href: "/directivos", icon: UserCog },
-  
-
 ];
 
 export default function Navigation() {
@@ -40,7 +39,6 @@ export default function Navigation() {
   const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    // Chequea la sesión al cargar el componente
     async function checkSession() {
       const {
         data: { session },
@@ -49,7 +47,6 @@ export default function Navigation() {
     }
     checkSession();
 
-    // Escucha los cambios en la autenticación
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -74,14 +71,14 @@ export default function Navigation() {
   return (
     <nav className="sticky top-0 z-50 w-full bg-gradient-to-t from-red-900/90 to-blue-800/70 text-red shadow-sm">
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between ">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <img
                 src="/images/logo.png"
                 alt="Lidom Podcast Show Logo"
-                className="relative h-16 w-16 rounded-full shadow-inner shadow-blue-400" 
+                className="relative h-16 w-16 rounded-full shadow-inner shadow-blue-400 spin-container"
               />
               <span className="text-lg font-bold text-justify">Lidom</span>
               <span className="text-xl font-bold text-justify">
@@ -112,9 +109,9 @@ export default function Navigation() {
               </Link>
             ))}
 
-            {/* Mostrar el botón de Logout solo si hay sesión */}
+            {/* Botón de Logout (solo si hay sesión) */}
             {session && (
-              <Button 
+              <Button
                 variant="outline"
                 onClick={handleLogout}
                 className="flex items-center bg-emerald-900 text-white border-white hover:bg-red-700"
@@ -123,6 +120,16 @@ export default function Navigation() {
                 Cerrar Sesión
               </Button>
             )}
+
+            {/* Contenedor con la imagen al final del menú con animación de giro */}
+            <div className="ml-4 spin-container">
+              <NextImage
+                src="/images/juansoto.avif"
+                alt="Juansoto"
+                width={64}
+                height={64}
+              />
+            </div>
           </div>
 
           {/* Mobile menu button */}
@@ -170,10 +177,30 @@ export default function Navigation() {
                   Cerrar Sesión
                 </Button>
               )}
+
+              {/* Contenedor de la imagen en Mobile con animación de giro */}
+              <div className="flex items-center justify-center mt-2 spin-container">
+                <NextImage
+                  src="/images/juansoto.avif"
+                  alt="Juansoto"
+                  width={64}
+                  height={64}
+                />
+              </div>
             </div>
           </div>
         )}
       </div>
+      {/* Estilos para la animación de giro */}
+      <style jsx>{`
+        .spin-container {
+          display: inline-block;
+          transition: transform 0.5s ease-in-out;
+        }
+        .spin-container:hover {
+          transform: rotate(360deg);
+        }
+      `}</style>
     </nav>
   );
 }

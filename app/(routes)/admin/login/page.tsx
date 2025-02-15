@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 type AuthFormData = {
@@ -19,16 +20,23 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Cambiamos el tipo a React.ReactNode para poder incluir JSX
+  const [errorMessage, setErrorMessage] = useState<React.ReactNode | null>(null);
   const [session, setSession] = useState<any>(null);
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors } } = useForm<AuthFormData>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AuthFormData>();
   const supabase = createClient();
 
   // Verificamos si hay una sesión activa al montar el componente
   useEffect(() => {
     async function checkSession() {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
       setSession(currentSession);
     }
     checkSession();
@@ -56,9 +64,19 @@ export default function AuthPage() {
 
       if (error) {
         setErrorMessage(
-          isRegistering
-            ? "Error al registrarse. Por favor, inténtalo de nuevo."
-            : "Credenciales inválidas. Por favor, revisa tu correo y contraseña."
+          <>
+            <Image
+              src="/images/error-icon.png"
+              alt="Error"
+              width={64}
+              height={64}
+            />
+            <span className="ml-2">
+              {isRegistering
+                ? "Error al registrarse. Por favor, inténtalo de nuevo."
+                : "Credenciales inválidas. Por favor, revisa tu correo y contraseña."}
+            </span>
+          </>
         );
         return;
       }
@@ -74,9 +92,19 @@ export default function AuthPage() {
       }, 2000);
     } catch (error) {
       setErrorMessage(
-        isRegistering
-          ? "Error al registrarse. Por favor, inténtalo de nuevo."
-          : "Error al iniciar sesión. Por favor, inténtalo de nuevo."
+        <>
+          <Image
+            src="/images/error-icon.png"
+            alt="Error"
+            width={24}
+            height={24}
+          />
+          <span className="ml-2">
+            {isRegistering
+              ? "Error al registrarse. Por favor, inténtalo de nuevo."
+              : "Error al iniciar sesión. Por favor, inténtalo de nuevo."}
+          </span>
+        </>
       );
     } finally {
       setIsLoading(false);
@@ -86,11 +114,16 @@ export default function AuthPage() {
   // Si ya hay una sesión activa, mostramos un mensaje y un botón para ir al panel
   if (session) {
     return (
-      <div className="min-h-screen bg-gradient-to-b  from-red-900/90  to-blue-800  flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b from-red-900/90 to-blue-800 flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8 text-center">
-          <h1 className="text-2xl font-bold text-blue-900 mb-8">Ya has iniciado sesión</h1>
-          <Button onClick={() => router.push("/admin/noticias")} className="w-full">
-            Puedes Editar Noticias y Estadistica aquí
+          <h1 className="text-2xl font-bold text-blue-900 mb-8">
+            Ya has iniciado sesión
+          </h1>
+          <Button
+            onClick={() => router.push("/admin/noticias")}
+            className="w-full"
+          >
+            Puedes Editar Noticias y Estadística aquí
           </Button>
         </Card>
       </div>
@@ -99,7 +132,7 @@ export default function AuthPage() {
 
   // Si no hay sesión, se muestra el formulario de autenticación
   return (
-    <div className="min-h-screen  bg-gradient-to-b  from-red-900/90  to-blue-800/70 shadow-lg shadow-blue-400 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-red-900/90 to-blue-800/70 shadow-lg shadow-blue-400 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8">
         <h1 className="text-2xl font-bold text-blue-900 text-center mb-8">
           {isRegistering ? "Registrarse" : "Iniciar Sesión"}
@@ -112,7 +145,7 @@ export default function AuthPage() {
         )}
 
         {errorMessage && (
-          <div className="bg-red-900 text-lg text-white p-3 rounded mb-4 text-center">
+          <div className="bg-red-900 text-lg text-white p-3 rounded mb-4 text-center flex items-center justify-center">
             {errorMessage}
           </div>
         )}
@@ -126,13 +159,18 @@ export default function AuthPage() {
               {...register("email", {
                 required: "El correo electrónico es requerido",
                 pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  value:
+                    /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                   message: "Correo electrónico inválido",
                 },
               })}
               className="mt-1"
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -149,7 +187,11 @@ export default function AuthPage() {
               })}
               className="mt-1"
             />
-            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
@@ -163,17 +205,6 @@ export default function AuthPage() {
             )}
           </Button>
         </form>
-
-        {/* <p className="text-center mt-4">
-          {isRegistering ? "¿Ya tienes una cuenta? " : "¿No tienes una cuenta? "}
-          <button
-            type="button"
-            onClick={() => setIsRegistering(!isRegistering)}
-            className="text-blue-600 underline"
-          >
-            {isRegistering ? "Inicia sesión" : "Regístrate"}
-          </button>
-        </p> */}
       </Card>
     </div>
   );
