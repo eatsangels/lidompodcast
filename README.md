@@ -1,6 +1,6 @@
 # Lidom Podcast Show
 
-![Lidom Podcast Show](https://lidompodcast.netlify.app/favicon.ico)
+![Lidom Podcast Show](https://lidompodcast.netlify.app/images/logo.png)
 
 **Lidom Podcast Show** es una plataforma dedicada a ofrecer contenido sobre la **Liga de Béisbol Profesional de la República Dominicana (LIDOM)**. Proporciona noticias, análisis y entrevistas sobre el béisbol dominicano.
 
