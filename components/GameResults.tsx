@@ -220,22 +220,8 @@ export default function GameResults() {
                 {/* Contenido de la tarjeta */}
                 <div className="p-6 bg-white">
                   <div className="flex items-center justify-between">
-                    {/* Equipo local */}
-                    <div className="flex-1 text-center border-r border-gray-300 pr-4">
-                      <img
-                        src={getTeamLogo(game.homeTeam)}
-                        alt={`${game.homeTeam} logo`}
-                        className="w-14 h-14 rounded-full object-cover mx-auto mb-3"
-                      />
-                      <div className="font-semibold text-gray-800 text-lg">
-                        {game.homeTeam}
-                      </div>
-                      <div className="text-4xl font-bold text-gray-900">
-                        {game.homeScore}
-                      </div>
-                    </div>
                     {/* Equipo visitante */}
-                    <div className="flex-1 text-center pl-4">
+                    <div className="flex-1 text-center  border-r border-gray-300 pr-4">
                       <img
                         src={getTeamLogo(game.awayTeam)}
                         alt={`${game.awayTeam} logo`}
@@ -248,6 +234,21 @@ export default function GameResults() {
                         {game.awayScore}
                       </div>
                     </div>
+                    {/* Equipo local */}
+                    <div className="flex-1 text-center  pl-4">
+                      <img
+                        src={getTeamLogo(game.homeTeam)}
+                        alt={`${game.homeTeam} logo`}
+                        className="w-14 h-14 rounded-full object-cover mx-auto mb-3"
+                      />
+                      <div className="font-semibold text-gray-800 text-lg">
+                        {game.homeTeam}
+                      </div>
+                      <div className="text-4xl font-bold text-gray-900">
+                        {game.homeScore}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               </Card>

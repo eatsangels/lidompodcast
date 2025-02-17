@@ -124,7 +124,7 @@ export default function AdminLiveGamesPage() {
       const end = start + pageSize - 1;
       const startDate = new Date(selectedDate + "T00:00:00Z");
       const endDate = new Date(selectedDate + "T23:59:59.999Z");
-  
+
       const { data, error, count } = await supabase
         .from("live_games")
         .select("*", { count: "exact" })
@@ -132,7 +132,7 @@ export default function AdminLiveGamesPage() {
         .lte("start_time", endDate.toISOString())
         .order("created_at", { ascending: false })
         .range(start, end);
-  
+
       if (error) throw error;
       setGames((data || []).map(transformGame));
       setTotalGames(count ?? 0);
@@ -193,7 +193,7 @@ export default function AdminLiveGamesPage() {
       current_batter: finalUpdates.currentBatter,
       current_pitcher: finalUpdates.currentPitcher
     };
-    
+
     if (finalUpdates.homeTeam !== undefined)
       snakeCaseUpdates.home_team = finalUpdates.homeTeam;
     if (finalUpdates.awayTeam !== undefined)
@@ -317,23 +317,7 @@ export default function AdminLiveGamesPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Equipo Local</Label>
-                        <select
-                          className="w-full mt-1 rounded-md border border-gray-300 p-2"
-                          value={game.homeTeam}
-                          onChange={(e) =>
-                            updateGame(game.id, { homeTeam: e.target.value })
-                          }
-                        >
-                          {teams.map((team) => (
-                            <option key={team} value={team}>
-                              {team}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <Label>Equipo Visitante</Label>
+                      <Label>Equipo Visitante</Label>
                         <select
                           className="w-full mt-1 rounded-md border border-gray-300 p-2"
                           value={game.awayTeam}
@@ -348,9 +332,38 @@ export default function AdminLiveGamesPage() {
                           ))}
                         </select>
                       </div>
+                      <div>
+                      <Label>Equipo Local</Label>
+                        <select
+                          className="w-full mt-1 rounded-md border border-gray-300 p-2"
+                          value={game.homeTeam}
+                          onChange={(e) =>
+                            updateGame(game.id, { homeTeam: e.target.value })
+                          }
+                        >
+                          {teams.map((team) => (
+                            <option key={team} value={team}>
+                              {team}
+                            </option>
+                          ))}
+                        </select>
+
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <Label>Carreras Visitante</Label>
+                        <Input
+                          type="number"
+                          value={game.awayScore}
+                          onChange={(e) =>
+                            updateGame(game.id, {
+                              awayScore: parseInt(e.target.value),
+                            })
+                          }
+                        />
+                      </div>
                       <div>
                         <Label>Carreras Local</Label>
                         <Input
@@ -363,18 +376,7 @@ export default function AdminLiveGamesPage() {
                           }
                         />
                       </div>
-                      <div>
-                        <Label>Carreras Visitante</Label>
-                        <Input
-                          type="number"
-                          value={game.awayScore}
-                          onChange={(e) =>
-                            updateGame(game.id, {
-                              awayScore: parseInt(e.target.value),
-                            })
-                          }
-                        />
-                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -420,11 +422,10 @@ export default function AdminLiveGamesPage() {
                             onClick={() =>
                               updateGame(game.id, { outs: out + 1 })
                             }
-                            className={`p-2 rounded-full ${
-                              game.outs > out
+                            className={`p-2 rounded-full ${game.outs > out
                                 ? "bg-red-900 text-white"
                                 : "bg-blue-900"
-                            }`}
+                              }`}
                           >
                             <Circle className="h-4 w-4" />
                           </button>
@@ -490,10 +491,10 @@ export default function AdminLiveGamesPage() {
                     <div>
                       <Label>Bateador Actual</Label>
                       <div className="mt-2">
-                        <BatterUpdater 
-                          gameId={game.id} 
+                        <BatterUpdater
+                          gameId={game.id}
                           currentBatter={game.currentBatter}
-                          onUpdate={(newBatter) => 
+                          onUpdate={(newBatter) =>
                             updateGame(game.id, { currentBatter: newBatter })
                           }
                         />
@@ -503,10 +504,10 @@ export default function AdminLiveGamesPage() {
                     <div>
                       <Label>Lanzador Actual</Label>
                       <div className="mt-2">
-                        <PitcherUpdater 
-                          gameId={game.id} 
+                        <PitcherUpdater
+                          gameId={game.id}
                           currentPitcher={game.currentPitcher}
-                          onUpdate={(newPitcher) => 
+                          onUpdate={(newPitcher) =>
                             updateGame(game.id, { currentPitcher: newPitcher })
                           }
                         />

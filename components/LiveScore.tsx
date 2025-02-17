@@ -159,7 +159,7 @@ export default function LiveScore() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">
-                      {game.is_top_inning ? "Alta" : "Baja"}
+                      {game.is_top_inning ? "Parte Alta" : "Parte Baja"}
                     </span>
                   </div>
                 </div>
@@ -167,6 +167,17 @@ export default function LiveScore() {
 
               <div className="p-6">
                 <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={awayStyle.logo}
+                        alt={`${game.away_team} logo`}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <span className="font-medium">{game.away_team}</span>
+                    </div>
+                    <span className="text-2xl font-bold">{game.away_score}</span>
+                  </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <img
@@ -178,17 +189,7 @@ export default function LiveScore() {
                     </div>
                     <span className="text-2xl font-bold">{game.home_score}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={awayStyle.logo}
-                        alt={`${game.away_team} logo`}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                      <span className="font-medium">{game.away_team}</span>
-                    </div>
-                    <span className="text-2xl font-bold">{game.away_score}</span>
-                  </div>
+                 
                 </div>
 
                 <div className="mt-6 border-t border-gray-100 pt-4">
@@ -252,7 +253,7 @@ export default function LiveScore() {
                       
                     </div>
                     <div className="mb-3 w-max mx-auto">
-                          <p className="text-sm  text-yellow-300 font-semibold ">BATEADOR DE TURNO</p>
+                          <p className="text-sm  text-green-600 font-semibold ">BATEADOR DE TURNO</p>
                           <p className="text-xl text-white font-bold truncate ">
                             {game.current_batter || "Por determinar"}
                           </p>
