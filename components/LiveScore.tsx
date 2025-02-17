@@ -22,7 +22,8 @@ type LiveGame = {
   start_time: string;
   balls: number;
   strikes: number;
-  current_batter: string; // Nuevo campo añadido
+  current_batter: string; 
+  current_pitcher: string; // Nuevo campo añadido
 };
 
 const getTeamStyle = (teamName: string) => {
@@ -251,12 +252,21 @@ export default function LiveScore() {
                       
                     </div>
                     <div className="mb-3 w-max mx-auto">
-                          <p className="text-lg  text-yellow-300 font-semibold ">BATEADOR ACTUAL</p>
-                          <p className="text-lg text-white font-bold truncate ">
+                          <p className="text-sm  text-yellow-300 font-semibold ">BATEADOR DE TURNO</p>
+                          <p className="text-xl text-white font-bold truncate ">
                             {game.current_batter || "Por determinar"}
                           </p>
                         </div>
                   </div>
+                  <div className="mt-3  mx-auto">
+                    <div className="text-sm text-yellow-300 font-semibold uppercase">
+                        EN LA LOMITA
+                                </div>
+                                <div className="text-xl text-white font-medium truncate">
+                    {game.current_pitcher || "Por determinar"}
+                                </div>
+                              </div>
+                  
                 </div>
               </div>
             </Card>

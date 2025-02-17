@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Circle, Plus, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import BatterUpdater from "@/components/BatterUpdater";
+import PitcherUpdater from "@/components/PitcherUpdater";
 
 type LiveGame = {
   id: string;
@@ -27,6 +28,7 @@ type LiveGame = {
   balls: number;
   strikes: number;
   currentBatter: string;
+  currentPitcher: string;
 };
 
 const transformGame = (game: any): LiveGame => ({
@@ -45,7 +47,8 @@ const transformGame = (game: any): LiveGame => ({
   startTime: game.start_time,
   balls: game.balls,
   strikes: game.strikes,
-  currentBatter: game.current_batter
+  currentBatter: game.current_batter,
+  currentPitcher: game.current_pitcher
 });
 
 export default function AdminLiveGamesPage() {
@@ -149,7 +152,8 @@ export default function AdminLiveGamesPage() {
           away_team: teams[1],
           start_time: new Date().toISOString(),
           status: "pre",
-          current_batter: "Por determinar"
+          current_batter: "Por determinar",
+          current_pitcher: "Por determinar"
         },
       ]);
       if (error) throw error;
@@ -186,7 +190,8 @@ export default function AdminLiveGamesPage() {
     }
 
     const snakeCaseUpdates: any = {
-      current_batter: finalUpdates.currentBatter
+      current_batter: finalUpdates.currentBatter,
+      current_pitcher: finalUpdates.currentPitcher
     };
     
     if (finalUpdates.homeTeam !== undefined)
@@ -490,6 +495,19 @@ export default function AdminLiveGamesPage() {
                           currentBatter={game.currentBatter}
                           onUpdate={(newBatter) => 
                             updateGame(game.id, { currentBatter: newBatter })
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Lanzador Actual</Label>
+                      <div className="mt-2">
+                        <PitcherUpdater 
+                          gameId={game.id} 
+                          currentPitcher={game.currentPitcher}
+                          onUpdate={(newPitcher) => 
+                            updateGame(game.id, { currentPitcher: newPitcher })
                           }
                         />
                       </div>
