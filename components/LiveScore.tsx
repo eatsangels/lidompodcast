@@ -22,9 +22,9 @@ type LiveGame = {
   start_time: string;
   balls: number;
   strikes: number;
+  current_batter: string; // Nuevo campo añadido
 };
 
-// Función que retorna el logo del equipo según su nombre
 const getTeamStyle = (teamName: string) => {
   switch (teamName.toLowerCase()) {
     case "tigres del licey":
@@ -50,9 +50,7 @@ export default function LiveScore() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Cargamos los datos iniciales
     fetchGames();
-    // Configuramos la suscripción para actualizar cuando la base de datos reciba nueva información
     setupSubscription();
   }, []);
 
@@ -152,7 +150,6 @@ export default function LiveScore() {
 
           return (
             <Card key={game.id} className="overflow-hidden">
-              {/* Game Header */}
               <div className="bg-gradient-to-r from-blue-900 to-blue-800 p-4 text-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
@@ -167,9 +164,7 @@ export default function LiveScore() {
                 </div>
               </div>
 
-              {/* Game Content */}
               <div className="p-6">
-                {/* Teams and Scores */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -195,12 +190,11 @@ export default function LiveScore() {
                   </div>
                 </div>
 
-                {/* Game Status */}
                 <div className="mt-6 border-t border-gray-100 pt-4">
                   <div className="grid grid-cols-3 gap-4">
-                    {/* Outs */}
                     <div className="text-center">
                       <div className="text-lg text-gray-500 mb-2">Outs</div>
+                      
                       <div className="flex justify-center space-x-1">
                         {[...Array(3)].map((_, i) => (
                           <Circle
@@ -213,54 +207,55 @@ export default function LiveScore() {
                         ))}
                       </div>
                     </div>
-
-                    {/* Diamond */}
+                        
                     <div className="text-center space-x-2 ">
                       <div className="text-lg text-gray-500 mb-4 text-left ">Bases</div>
                       <div className="relative w-8 h-8 mx-auto transform ">
-                        {/* Second Base */}
                         <div
                           className={`absolute -top-2 left-1/2 transform rotate-45 -translate-x-1/2 w-4 h-4 ${
                             game.second_base ? "bg-blue-900" : "bg-gray-200"
                           }`}
                         />
-                        {/* Third Base */}
                         <div
                           className={`absolute top-1/2 -left-2 rotate-45 transform -translate-y-1/2 w-4 h-4 ${
                             game.third_base ? "bg-blue-900" : "bg-gray-200"
                           }`}
                         />
-                        {/* First Base */}
                         <div
                           className={`absolute top-1/2 -right-2 rotate-45 transform -translate-y-1/2 w-4 h-4 ${
                             game.first_base ? "bg-blue-900" : "bg-gray-200"
                           }`}
                         />
-                        {/* Home Plate */}
                         <div className="absolute -bottom-2 rotate-45 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-yellow-200" />
                       </div>
                     </div>
 
-                    {/* Count */}
+                    {/* Sección modificada con el bateador */}
                     <div className="text-center border rounded-lg p-1 bg-gray-800 shadow-lg shadow-blue-600">
-                      <div className="text-lg font-medium text-white mb-1">Conteo</div>
-                      <div className="flex items-center justify-center space-x-2">
-                        {/* Bolas */}
-                        <div className="bg-blue-50 px-4 py-2 rounded-md">
-                          <span className="text-xl font-bold text-blue-900">{game.balls}</span>
-                          <span className="text-xs block mt-1 text-blue-600">BOLAS</span>
+                      <div className="flex flex-col space-y-2">
+                       
+                        <div className="text-lg font-medium text-white">Conteo</div>
+                        <div className="flex items-center justify-center space-x-2">
+                          <div className="bg-blue-50 px-4 py-2 rounded-md">
+                            <span className="text-xl font-bold text-blue-900">{game.balls}</span>
+                            <span className="text-xs block mt-1 text-blue-600">BOLAS</span>
+                          </div>
+                          <div className="h-8 w-px bg-gray-200"></div>
+                          <div className="bg-red-50 px-2 py-2 rounded-md">
+                            <span className="text-xl font-bold text-red-600">{game.strikes}</span>
+                            <span className="text-xs block mt-1 text-red-500">STRIKES</span>
+                          </div>
                         </div>
-
-                        {/* Separador */}
-                        <div className="h-8 w-px bg-gray-200"></div>
-
-                        {/* Strikes */}
-                        <div className="bg-red-50 px-2 py-2 rounded-md">
-                          <span className="text-xl font-bold text-red-600">{game.strikes}</span>
-                          <span className="text-xs block mt-1 text-red-500">STRIKES</span>
-                        </div>
+                        
                       </div>
+                      
                     </div>
+                    <div className="mb-3 w-max mx-auto">
+                          <p className="text-lg  text-yellow-300 font-semibold ">BATEADOR ACTUAL</p>
+                          <p className="text-lg text-white font-bold truncate ">
+                            {game.current_batter || "Por determinar"}
+                          </p>
+                        </div>
                   </div>
                 </div>
               </div>

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Circle, Plus, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import BatterUpdater from "@/components/BatterUpdater";
 
 type LiveGame = {
   id: string;
@@ -25,6 +26,7 @@ type LiveGame = {
   startTime: string;
   balls: number;
   strikes: number;
+  currentBatter: string;
 };
 
 const transformGame = (game: any): LiveGame => ({
@@ -43,17 +45,16 @@ const transformGame = (game: any): LiveGame => ({
   startTime: game.start_time,
   balls: game.balls,
   strikes: game.strikes,
+  currentBatter: game.current_batter
 });
 
 export default function AdminLiveGamesPage() {
   const [games, setGames] = useState<LiveGame[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
-  // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [totalGames, setTotalGames] = useState(0);
-  // Filtro por fecha (formato YYYY-MM-DD)
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
@@ -68,12 +69,10 @@ export default function AdminLiveGamesPage() {
     "Toros del Este",
   ];
 
-  // Se vuelve a cargar la lista cada vez que cambia la página o la fecha seleccionada
   useEffect(() => {
     fetchGames();
   }, [currentPage, selectedDate]);
 
-  // Suscripción para manejar cambios sin refrescar toda la lista
   useEffect(() => {
     const channel = supabase
       .channel("live_games_changes")
@@ -83,7 +82,6 @@ export default function AdminLiveGamesPage() {
         (payload) => {
           if (payload.eventType === "INSERT") {
             const newGameData = payload.new;
-            // Usamos ilike para comparar la fecha (formato ISO)
             if (
               newGameData.start_time &&
               newGameData.start_time.startsWith(selectedDate)
@@ -121,10 +119,6 @@ export default function AdminLiveGamesPage() {
     try {
       const start = (currentPage - 1) * pageSize;
       const end = start + pageSize - 1;
-  
-      // Definimos el rango de fecha (UTC) para el día seleccionado.
-      // Por ejemplo, si selectedDate es "2025-02-14", se buscará entre:
-      // "2025-02-14T00:00:00Z" y "2025-02-14T23:59:59.999Z"
       const startDate = new Date(selectedDate + "T00:00:00Z");
       const endDate = new Date(selectedDate + "T23:59:59.999Z");
   
@@ -145,7 +139,6 @@ export default function AdminLiveGamesPage() {
       setIsLoading(false);
     }
   };
-  
 
   const createGame = async () => {
     try {
@@ -154,13 +147,12 @@ export default function AdminLiveGamesPage() {
         {
           home_team: teams[0],
           away_team: teams[1],
-          // Se utiliza new Date().toISOString() (formato ISO) para que coincida con el filtro
           start_time: new Date().toISOString(),
           status: "pre",
+          current_batter: "Por determinar"
         },
       ]);
       if (error) throw error;
-      // Si no estamos en la página 1, volvemos a la página 1
       if (currentPage !== 1) {
         setCurrentPage(1);
       } else {
@@ -193,7 +185,10 @@ export default function AdminLiveGamesPage() {
       };
     }
 
-    const snakeCaseUpdates: any = {};
+    const snakeCaseUpdates: any = {
+      current_batter: finalUpdates.currentBatter
+    };
+    
     if (finalUpdates.homeTeam !== undefined)
       snakeCaseUpdates.home_team = finalUpdates.homeTeam;
     if (finalUpdates.awayTeam !== undefined)
@@ -293,7 +288,6 @@ export default function AdminLiveGamesPage() {
           {games.map((game) => (
             <Card key={game.id} className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Información del Juego */}
                 <div>
                   <h3 className="text-xl font-semibold mb-4">
                     Información del Juego
@@ -380,7 +374,6 @@ export default function AdminLiveGamesPage() {
                   </div>
                 </div>
 
-                {/* Estado del Juego */}
                 <div>
                   <h3 className="text-xl font-semibold mb-4">
                     Estado del Juego
@@ -488,6 +481,19 @@ export default function AdminLiveGamesPage() {
                         />
                       </div>
                     </div>
+
+                    <div>
+                      <Label>Bateador Actual</Label>
+                      <div className="mt-2">
+                        <BatterUpdater 
+                          gameId={game.id} 
+                          currentBatter={game.currentBatter}
+                          onUpdate={(newBatter) => 
+                            updateGame(game.id, { currentBatter: newBatter })
+                          }
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -495,7 +501,6 @@ export default function AdminLiveGamesPage() {
           ))}
         </div>
 
-        {/* Controles de paginación */}
         <div className="flex items-center justify-between mt-8">
           <Button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
