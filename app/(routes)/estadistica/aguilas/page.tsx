@@ -2364,7 +2364,7 @@ export default function Page() {
         
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
           <h1 className="text-4xl font-bold text-white mb-4 drop-shadow-lg">
-            Estadísticas del Equipo Aguilas Cibaeñas
+            Estadísticas de Las Aguilas Cibaeñas
           </h1>
           <p className="text-xl text-white/90 drop-shadow-md">
             Temporada 2024 Serie Regular
@@ -2426,7 +2426,7 @@ export default function Page() {
               <tbody>
                 {filteredBatters.map((jugador, index) => (
                   <tr key={index} className={jugador.nombre === "Totales" ? "bg-yellow-500 font-bold" : ""}>
-                    <td className="border border-gray-300 p-2 text-yellow-300">{jugador.nombre}</td>
+                    <td className="border border-gray-300 p-2 text-yellow-300 bg-yellow-300/20">{jugador.nombre}</td>
                 <td className="border border-gray-300 p-2 text-center text-white">{jugador.edad}</td>
                 <td className="border border-gray-300 p-2 text-center text-white">{jugador.pos}</td>
                 <td className="border border-gray-300 p-2 text-center text-white">{jugador.jj}</td>
@@ -2500,7 +2500,7 @@ export default function Page() {
               <tbody>
                 {filteredPitchers.map((pitcher, index) => (
                   <tr key={index} className={pitcher.nombre === "Totales" ? "bg-yellow-500 font-bold" : ""}>
-                    <td className="border border-gray-300 p-2 text-yellow-300">{pitcher.nombre}</td>
+                    <td className="border border-gray-300 p-2 text-yellow-300 bg-yellow-300/20">{pitcher.nombre}</td>
                 <td className="border border-gray-300 p-2 text-center text-white">{pitcher.edad}</td>
                 <td className="border border-gray-300 p-2 text-center text-white">{pitcher.w}</td>
                 <td className="border border-gray-300 p-2 text-center text-white">{pitcher.l}</td>
