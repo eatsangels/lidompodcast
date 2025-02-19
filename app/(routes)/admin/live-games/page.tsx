@@ -48,7 +48,7 @@ const transformGame = (game: any): LiveGame => ({
   balls: game.balls,
   strikes: game.strikes,
   currentBatter: game.current_batter,
-  currentPitcher: game.current_pitcher
+  currentPitcher: game.current_pitcher,
 });
 
 export default function AdminLiveGamesPage() {
@@ -58,8 +58,9 @@ export default function AdminLiveGamesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [totalGames, setTotalGames] = useState(0);
+  // Se usa toLocaleDateString con el locale 'en-CA' para obtener el formato ISO (YYYY-MM-DD) usando la hora local.
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    new Date().toLocaleDateString("en-CA")
   );
 
   const supabase = createClient();
@@ -122,8 +123,9 @@ export default function AdminLiveGamesPage() {
     try {
       const start = (currentPage - 1) * pageSize;
       const end = start + pageSize - 1;
-      const startDate = new Date(selectedDate + "T00:00:00Z");
-      const endDate = new Date(selectedDate + "T23:59:59.999Z");
+      // Se construyen las fechas de inicio y fin usando la hora local
+      const startDate = new Date(selectedDate + "T00:00:00");
+      const endDate = new Date(selectedDate + "T23:59:59.999");
 
       const { data, error, count } = await supabase
         .from("live_games")
@@ -150,10 +152,11 @@ export default function AdminLiveGamesPage() {
         {
           home_team: teams[0],
           away_team: teams[1],
+          // Se mantiene toISOString() ya que la base de datos almacena en UTC.
           start_time: new Date().toISOString(),
           status: "pre",
           current_batter: "Por determinar",
-          current_pitcher: "Por determinar"
+          current_pitcher: "Por determinar",
         },
       ]);
       if (error) throw error;
@@ -191,7 +194,7 @@ export default function AdminLiveGamesPage() {
 
     const snakeCaseUpdates: any = {
       current_batter: finalUpdates.currentBatter,
-      current_pitcher: finalUpdates.currentPitcher
+      current_pitcher: finalUpdates.currentPitcher,
     };
 
     if (finalUpdates.homeTeam !== undefined)
@@ -317,7 +320,7 @@ export default function AdminLiveGamesPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                      <Label>Equipo Visitante</Label>
+                        <Label>Equipo Visitante</Label>
                         <select
                           className="w-full mt-1 rounded-md border border-gray-300 p-2"
                           value={game.awayTeam}
@@ -333,7 +336,7 @@ export default function AdminLiveGamesPage() {
                         </select>
                       </div>
                       <div>
-                      <Label>Equipo Local</Label>
+                        <Label>Equipo Local</Label>
                         <select
                           className="w-full mt-1 rounded-md border border-gray-300 p-2"
                           value={game.homeTeam}
@@ -347,12 +350,11 @@ export default function AdminLiveGamesPage() {
                             </option>
                           ))}
                         </select>
-
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                    <div>
+                      <div>
                         <Label>Carreras Visitante</Label>
                         <Input
                           type="number"
@@ -376,7 +378,6 @@ export default function AdminLiveGamesPage() {
                           }
                         />
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -422,10 +423,11 @@ export default function AdminLiveGamesPage() {
                             onClick={() =>
                               updateGame(game.id, { outs: out + 1 })
                             }
-                            className={`p-2 rounded-full ${game.outs > out
+                            className={`p-2 rounded-full ${
+                              game.outs > out
                                 ? "bg-red-900 text-white"
                                 : "bg-blue-900"
-                              }`}
+                            }`}
                           >
                             <Circle className="h-4 w-4" />
                           </button>

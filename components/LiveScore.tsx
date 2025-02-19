@@ -215,20 +215,20 @@ export default function LiveScore() {
                       <div className="relative w-8 h-8 mx-auto transform ">
                         <div
                           className={`absolute -top-2 left-1/2 transform rotate-45 -translate-x-1/2 w-4 h-4 ${
-                            game.second_base ? "bg-blue-900" : "bg-gray-200"
+                            game.second_base ? "bg-yellow-300" : "bg-gray-200"
                           }`}
                         />
                         <div
                           className={`absolute top-1/2 -left-2 rotate-45 transform -translate-y-1/2 w-4 h-4 ${
-                            game.third_base ? "bg-blue-900" : "bg-gray-200"
+                            game.third_base ? "bg-yellow-300" : "bg-gray-200"
                           }`}
                         />
                         <div
                           className={`absolute top-1/2 -right-2 rotate-45 transform -translate-y-1/2 w-4 h-4 ${
-                            game.first_base ? "bg-blue-900" : "bg-gray-200"
+                            game.first_base ? "bg-yellow-300" : "bg-gray-200"
                           }`}
                         />
-                        <div className="absolute -bottom-2 rotate-45 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-yellow-200" />
+                        <div className="absolute -bottom-2 rotate-45 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-yellow-200/1" />
                       </div>
                     </div>
 

@@ -35,13 +35,12 @@ const getTeamLogo = (teamName: string) => {
 };
 
 export default function GameResults() {
+  // Se obtiene la fecha local en formato YYYY-MM-DD
+  const [selectedDate, setSelectedDate] = useState(() =>
+    new Date().toLocaleDateString("en-CA")
+  );
   const [games, setGames] = useState<LiveGame[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  // Estado para la fecha seleccionada; inicialmente "hoy" (YYYY-MM-DD)
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().slice(0, 10);
-  });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const pageSize = 10;
@@ -56,18 +55,16 @@ export default function GameResults() {
   const fetchGames = async () => {
     setIsLoading(true);
     try {
-      // Se define el rango de fecha: desde selectedDate hasta el día siguiente.
-      const startDate = selectedDate; // "YYYY-MM-DD"
-      const endDateObj = new Date(selectedDate);
-      endDateObj.setDate(endDateObj.getDate() + 1);
-      const endDate = endDateObj.toISOString();
+      // Construir el rango del día en hora local
+      const startDateObj = new Date(selectedDate + "T00:00:00");
+      const endDateObj = new Date(selectedDate + "T23:59:59.999");
 
       const { data, error, count } = await supabase
         .from("live_games")
         .select("*", { count: "exact" })
         .eq("status", "final")
-        .gte("start_time", startDate)
-        .lt("start_time", endDate)
+        .gte("start_time", startDateObj.toISOString())
+        .lt("start_time", endDateObj.toISOString())
         .order("start_time", { ascending: false })
         .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
@@ -101,9 +98,9 @@ export default function GameResults() {
         { event: "UPDATE", schema: "public", table: "live_games" },
         (payload) => {
           if (payload.new.status === "final") {
+            // Se compara la fecha usando el formato local
             const updatedDate = new Date(payload.new.start_time)
-              .toISOString()
-              .slice(0, 10);
+              .toLocaleDateString("en-CA");
             if (updatedDate === selectedDate) {
               const updatedGame: LiveGame = {
                 id: payload.new.id,
@@ -114,7 +111,6 @@ export default function GameResults() {
                 status: payload.new.status,
                 startTime: payload.new.start_time,
               };
-              // Actualiza el listado: si ya existe, lo reemplaza; si no, lo agrega al inicio.
               setGames((current) => {
                 const exists = current.find((g) => g.id === updatedGame.id);
                 if (exists) {
@@ -213,7 +209,9 @@ export default function GameResults() {
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-white">Final</span>
+                      <span className="text-sm font-medium text-white">
+                        Final
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -221,7 +219,7 @@ export default function GameResults() {
                 <div className="p-6 bg-white">
                   <div className="flex items-center justify-between">
                     {/* Equipo visitante */}
-                    <div className="flex-1 text-center  border-r border-gray-300 pr-4">
+                    <div className="flex-1 text-center border-r border-gray-300 pr-4">
                       <img
                         src={getTeamLogo(game.awayTeam)}
                         alt={`${game.awayTeam} logo`}
@@ -235,7 +233,7 @@ export default function GameResults() {
                       </div>
                     </div>
                     {/* Equipo local */}
-                    <div className="flex-1 text-center  pl-4">
+                    <div className="flex-1 text-center pl-4">
                       <img
                         src={getTeamLogo(game.homeTeam)}
                         alt={`${game.homeTeam} logo`}
@@ -248,7 +246,6 @@ export default function GameResults() {
                         {game.homeScore}
                       </div>
                     </div>
-
                   </div>
                 </div>
               </Card>
