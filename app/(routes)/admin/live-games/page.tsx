@@ -21,14 +21,35 @@ type LiveGame = {
   isTopInning: boolean;
   outs: number;
   firstBase: boolean;
+  firstBaseRunner: string | null;
   secondBase: boolean;
+  secondBaseRunner: string | null;
   thirdBase: boolean;
+  thirdBaseRunner: string | null;
   status: "pre" | "live" | "final";
   startTime: string;
   balls: number;
   strikes: number;
   currentBatter: string;
   currentPitcher: string;
+};
+
+type PlayType = {
+  category: string;
+  type: string;
+  subType?: string;
+  description: string;
+  basesToAdvance: number;
+  isOut: boolean;
+  affectsScore: boolean;
+  affectsRunners: boolean;
+};
+
+type SelectedPlay = {
+  gameId: string;
+  playType: PlayType;
+  batter: string;
+  runners: string[];
 };
 
 const transformGame = (game: any): LiveGame => ({
@@ -41,8 +62,11 @@ const transformGame = (game: any): LiveGame => ({
   isTopInning: game.is_top_inning,
   outs: game.outs,
   firstBase: game.first_base,
+  firstBaseRunner: game.first_base_runner,
   secondBase: game.second_base,
+  secondBaseRunner: game.second_base_runner,
   thirdBase: game.third_base,
+  thirdBaseRunner: game.third_base_runner,
   status: game.status,
   startTime: game.start_time,
   balls: game.balls,
@@ -51,14 +75,184 @@ const transformGame = (game: any): LiveGame => ({
   currentPitcher: game.current_pitcher,
 });
 
+const PLAY_TYPES: PlayType[] = [
+  {
+    category: 'Bateo',
+    type: 'Hit',
+    subType: 'Sencillo',
+    description: 'Sencillo',
+    basesToAdvance: 1,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Bateo',
+    type: 'Hit',
+    subType: 'Doble',
+    description: 'Doble',
+    basesToAdvance: 2,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Bateo',
+    type: 'Hit',
+    subType: 'Triple',
+    description: 'Triple',
+    basesToAdvance: 3,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Bateo',
+    type: 'Hit',
+    subType: 'Jonrón',
+    description: 'Jonrón',
+    basesToAdvance: 4,
+    isOut: false,
+    affectsScore: true,
+    affectsRunners: true
+  },
+  {
+    category: 'Bateo',
+    type: 'Base por Bolas',
+    description: 'Base por Bolas',
+    basesToAdvance: 1,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Bateo',
+    type: 'Golpeado por la Pelota',
+    description: 'HBP',
+    basesToAdvance: 1,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Out',
+    type: 'Strikeout',
+    description: 'Ponche',
+    basesToAdvance: 0,
+    isOut: true,
+    affectsScore: false,
+    affectsRunners: false
+  },
+  {
+    category: 'Out',
+    type: 'Fly Out',
+    description: 'Elevado Atrapado',
+    basesToAdvance: 0,
+    isOut: true,
+    affectsScore: false,
+    affectsRunners: false
+  },
+  {
+    category: 'Out',
+    type: 'Ground Out',
+    description: 'Rodado Atrapado',
+    basesToAdvance: 0,
+    isOut: true,
+    affectsScore: false,
+    affectsRunners: false
+  },
+  {
+    category: 'Out',
+    type: 'Line Out',
+    description: 'Línea Atrapada',
+    basesToAdvance: 0,
+    isOut: true,
+    affectsScore: false,
+    affectsRunners: false
+  },
+  {
+    category: 'Out',
+    type: 'Double Play',
+    description: 'Doble Play',
+    basesToAdvance: 0,
+    isOut: true,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Defensa',
+    type: 'Asistencia',
+    description: 'Asistencia',
+    basesToAdvance: 0,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: false
+  },
+  {
+    category: 'Defensa',
+    type: 'Error',
+    description: 'Error',
+    basesToAdvance: 0,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Especial',
+    type: 'Infield Fly',
+    description: 'Regla Infield Fly',
+    basesToAdvance: 0,
+    isOut: true,
+    affectsScore: false,
+    affectsRunners: false
+  },
+  {
+    category: 'Especial',
+    type: 'Wild Pitch',
+    description: 'Lanzamiento Descontrolado',
+    basesToAdvance: 1,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Especial',
+    type: 'Passed Ball',
+    description: 'Pelota Pasada',
+    basesToAdvance: 1,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Corredor',
+    type: 'Stolen Base',
+    description: 'Base Robada',
+    basesToAdvance: 1,
+    isOut: false,
+    affectsScore: false,
+    affectsRunners: true
+  },
+  {
+    category: 'Corredor',
+    type: 'Caught Stealing',
+    description: 'Atrapado Robando',
+    basesToAdvance: 0,
+    isOut: true,
+    affectsScore: false,
+    affectsRunners: true
+  },
+];
+
 export default function AdminLiveGamesPage() {
   const [games, setGames] = useState<LiveGame[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedPlay, setSelectedPlay] = useState<SelectedPlay | null>(null);
+  const [showPlaySelector, setShowPlaySelector] = useState(false);
   const pageSize = 10;
   const [totalGames, setTotalGames] = useState(0);
-  // Se usa toLocaleDateString con el locale 'en-CA' para obtener el formato ISO (YYYY-MM-DD) usando la hora local.
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toLocaleDateString("en-CA")
   );
@@ -73,104 +267,387 @@ export default function AdminLiveGamesPage() {
     "Toros del Este",
   ];
 
-  useEffect(() => {
-    fetchGames();
-  }, [currentPage, selectedDate]);
+  const getNextPlayOrder = async (gameId: string): Promise<number> => {
+    const { count, error } = await supabase
+      .from("game_plays")
+      .select("*", { count: "exact", head: true })
+      .eq("game_id", gameId);
+    if (error) {
+      console.error("Error obteniendo el orden de jugadas:", error);
+      return 1;
+    }
+    return (count || 0) + 1;
+  };
 
-  useEffect(() => {
-    const channel = supabase
-      .channel("live_games_changes")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "live_games" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            const newGameData = payload.new;
-            if (
-              newGameData.start_time &&
-              newGameData.start_time.startsWith(selectedDate)
-            ) {
-              if (currentPage === 1) {
-                setGames((current) =>
-                  [transformGame(newGameData), ...current].slice(0, pageSize)
-                );
-              }
-              setTotalGames((prev) => prev + 1);
-            }
-          } else if (payload.eventType === "UPDATE") {
-            setGames((current) =>
-              current.map((game) =>
-                game.id === payload.new.id ? transformGame(payload.new) : game
-              )
-            );
-          } else if (payload.eventType === "DELETE") {
-            setGames((current) =>
-              current.filter((game) => game.id !== payload.old.id)
-            );
-            setTotalGames((prev) => prev - 1);
-          }
-        }
-      )
-      .subscribe();
+  const registerPlay = async (
+    gameId: string,
+    playType: string,
+    description: string,
+    additionalData?: Partial<LiveGame> & { 
+      batter?: string;
+      runners?: string[];
+      subType?: string;
+      firstBaseRunner?: string | null;
+      secondBaseRunner?: string | null;
+      thirdBaseRunner?: string | null;
+    }
+  ) => {
+    const playOrder = await getNextPlayOrder(gameId);
+    
+    const currentGame = games.find(g => g.id === gameId);
+    const originalRunners = [
+      currentGame?.firstBaseRunner,
+      currentGame?.secondBaseRunner,
+      currentGame?.thirdBaseRunner
+    ].filter(Boolean) as string[];
+  
+    let fullDescription = '';
+    let involvedRunners: string[] = [];
+  
+    switch(playType) {
+      case 'Hit':
+        fullDescription = `${additionalData?.batter || 'Bateador'} - ${description}`;
+        involvedRunners = originalRunners.filter(r => r !== additionalData?.batter);
+        break;
+      
+      case 'Stolen Base':
+        involvedRunners = [currentGame?.firstBaseRunner || ''].filter(Boolean);
+        fullDescription = `${involvedRunners[0] || 'Corredor'} - ${description}`;
+        break;
+      
+      case 'Caught Stealing':
+        involvedRunners = [currentGame?.firstBaseRunner || ''].filter(Boolean);
+        fullDescription = `${involvedRunners[0] || 'Corredor'} - ${description}`;
+        break;
+      
+      case 'Double Play':
+        involvedRunners = originalRunners;
+        fullDescription = `${additionalData?.batter || 'Bateador'} - ${description}`;
+        break;
+      
+      case 'Strikeout':
+      case 'Fly Out':
+      case 'Ground Out':
+      case 'Line Out':
+      case 'Infield Fly':
+        fullDescription = `${additionalData?.batter || 'Bateador'} - ${description}`;
+        involvedRunners = originalRunners;
+        break;
 
-    return () => {
-      supabase.removeChannel(channel);
+      case 'Base por Bolas':
+      case 'Golpeado por la Pelota':
+        fullDescription = `${additionalData?.batter || 'Bateador'} - ${description}`;
+        involvedRunners = originalRunners;
+        break;
+
+        
+      
+      default:
+        fullDescription = description;
+        involvedRunners = originalRunners;
+    }
+  
+    const playData = {
+      game_id: gameId,
+      play_order: playOrder,
+      play_type: playType,
+      sub_type: additionalData?.subType,
+      description: fullDescription,
+      batter_id: additionalData?.batter,
+      runners: involvedRunners.length > 0 ? JSON.stringify(involvedRunners) : null,
+      first_base_runner: additionalData?.firstBaseRunner,
+      second_base_runner: additionalData?.secondBaseRunner,
+      third_base_runner: additionalData?.thirdBaseRunner,
+      inning: additionalData?.inning || 0,
+      is_top_inning: additionalData?.isTopInning ?? true,
+      outs: additionalData?.outs,
+      balls: additionalData?.balls,
+      strikes: additionalData?.strikes,
+      created_at: new Date().toISOString()
     };
-  }, [selectedDate, currentPage]);
-
-  const fetchGames = async () => {
-    setIsLoading(true);
-    try {
-      const start = (currentPage - 1) * pageSize;
-      const end = start + pageSize - 1;
-      // Se construyen las fechas de inicio y fin usando la hora local
-      const startDate = new Date(selectedDate + "T00:00:00");
-      const endDate = new Date(selectedDate + "T23:59:59.999");
-
-      const { data, error, count } = await supabase
-        .from("live_games")
-        .select("*", { count: "exact" })
-        .gte("start_time", startDate.toISOString())
-        .lte("start_time", endDate.toISOString())
-        .order("created_at", { ascending: false })
-        .range(start, end);
-
-      if (error) throw error;
-      setGames((data || []).map(transformGame));
-      setTotalGames(count ?? 0);
-    } catch (error) {
-      console.error("Error fetching games:", error);
-    } finally {
-      setIsLoading(false);
+    
+    const { error } = await supabase.from("game_plays").insert([playData]);
+    if (error) {
+      console.error("Error registrando la jugada:", error);
     }
   };
 
-  const createGame = async () => {
-    try {
-      setIsCreating(true);
-      const { error } = await supabase.from("live_games").insert([
-        {
-          home_team: teams[0],
-          away_team: teams[1],
-          // Se mantiene toISOString() ya que la base de datos almacena en UTC.
-          start_time: new Date().toISOString(),
-          status: "pre",
-          current_batter: "Por determinar",
-          current_pitcher: "Por determinar",
-        },
-      ]);
-      if (error) throw error;
-      if (currentPage !== 1) {
-        setCurrentPage(1);
+  const advanceForcedRunners = (currentGame: LiveGame): LiveGame => {
+    const newGame = { ...currentGame };
+    const wereBasesLoaded = newGame.firstBase && newGame.secondBase && newGame.thirdBase;
+    
+    newGame.thirdBaseRunner = newGame.secondBaseRunner;
+    newGame.secondBaseRunner = newGame.firstBaseRunner;
+    newGame.firstBaseRunner = currentGame.currentBatter;
+    
+    const runs = wereBasesLoaded ? 1 : 0;
+
+    return {
+      ...newGame,
+      firstBase: true,
+      secondBase: newGame.firstBase,
+      thirdBase: newGame.secondBase,
+      [newGame.isTopInning ? 'awayScore' : 'homeScore']: newGame[newGame.isTopInning ? 'awayScore' : 'homeScore'] + runs
+    };
+  };
+
+  const handleStolenBase = (currentGame: LiveGame): LiveGame => {
+    const newGame = { ...currentGame };
+    
+    if (newGame.firstBase) {
+      // Mover de primera a segunda
+      newGame.secondBase = true;
+      newGame.secondBaseRunner = newGame.firstBaseRunner;  // Mover al corredor de primera a segunda
+      newGame.firstBase = false;
+      newGame.firstBaseRunner = null;
+    } else if (newGame.secondBase) {
+      // Mover de segunda a tercera
+      newGame.thirdBase = true;
+      newGame.thirdBaseRunner = newGame.secondBaseRunner;  // Mover al corredor de segunda a tercera
+      newGame.secondBase = false;
+      newGame.secondBaseRunner = null;
+    } else if (newGame.thirdBase) {
+      // Anotar carrera
+      newGame.thirdBase = false;
+      newGame.thirdBaseRunner = null;
+      if (newGame.isTopInning) {
+        newGame.awayScore += 1;
       } else {
-        fetchGames();
+        newGame.homeScore += 1;
       }
-    } catch (error) {
-      console.error("Error creating game:", error);
-      alert("Error al crear el juego");
-    } finally {
-      setIsCreating(false);
     }
+    
+    return newGame;
+  };
+  
+  const handleDoublePlay = (currentGame: LiveGame): LiveGame => {
+    const newGame = { ...currentGame };
+    newGame.firstBase = false;
+    newGame.secondBase = false;
+    newGame.firstBaseRunner = null;
+    newGame.secondBaseRunner = null;
+    newGame.outs += 2;
+    
+    if (newGame.outs >= 3) {
+      newGame.outs = 0;
+      newGame.thirdBase = false;
+      newGame.thirdBaseRunner = null;
+      newGame.isTopInning = !newGame.isTopInning;
+      if (!newGame.isTopInning) newGame.inning += 1;
+    }
+    
+    return newGame;
+  };
+
+  const advanceRunners = (currentGame: LiveGame, bases: number): LiveGame => {
+    const newGame = { ...currentGame };
+    let runs = 0;
+  
+    const runners = [
+      { base: 1, isOn: newGame.firstBase, runner: newGame.firstBaseRunner },
+      { base: 2, isOn: newGame.secondBase, runner: newGame.secondBaseRunner },
+      { base: 3, isOn: newGame.thirdBase, runner: newGame.thirdBaseRunner },
+    ];
+  
+    // Resetear las bases
+    newGame.firstBase = false;
+    newGame.secondBase = false;
+    newGame.thirdBase = false;
+    newGame.firstBaseRunner = null;
+    newGame.secondBaseRunner = null;
+    newGame.thirdBaseRunner = null;
+  
+    // Mover a los corredores existentes
+    runners.forEach(({ base, isOn, runner }) => {
+      if (isOn && runner) {
+        const newBase = base + bases;
+        if (newBase >= 4) {
+          runs += 1; // El corredor anota una carrera
+        } else {
+          switch (newBase) {
+            case 1:
+              newGame.firstBase = true;
+              newGame.firstBaseRunner = runner;
+              break;
+            case 2:
+              newGame.secondBase = true;
+              newGame.secondBaseRunner = runner;
+              break;
+            case 3:
+              newGame.thirdBase = true;
+              newGame.thirdBaseRunner = runner;
+              break;
+          }
+        }
+      }
+    });
+  
+    // Agregar al bateador a la base correspondiente (solo para hits)
+    if (bases > 0 && bases < 4) {
+      switch (bases) {
+        case 1:
+          newGame.firstBase = true;
+          newGame.firstBaseRunner = currentGame.currentBatter;
+          break;
+        case 2:
+          newGame.secondBase = true;
+          newGame.secondBaseRunner = currentGame.currentBatter;
+          break;
+        case 3:
+          newGame.thirdBase = true;
+          newGame.thirdBaseRunner = currentGame.currentBatter;
+          break;
+      }
+    }
+  
+    // Para jonrones, todos los corredores y el bateador anotan carreras
+    if (bases === 4) {
+      runs += runners.filter(({ isOn }) => isOn).length + 1; // +1 por el bateador
+    }
+  
+    // Actualizar el marcador
+    const scoreKey = newGame.isTopInning ? 'awayScore' : 'homeScore';
+    newGame[scoreKey] += runs;
+  
+    return newGame;
+  };
+
+  const handlePlaySelection = async (playType: PlayType) => {
+    if (!selectedPlay) return;
+  
+    const currentGame = games.find((g) => g.id === selectedPlay.gameId);
+    if (!currentGame) return;
+  
+    let newState = { ...currentGame };
+  
+    // Definimos runnersInvolved aquí
+    let runnersInvolved: string[] = [];
+  
+    // Manejar jugadas que afectan corredores
+    if (playType.affectsRunners) {
+      switch (playType.type) {
+        case "Stolen Base":
+          newState = handleStolenBase(newState);
+          runnersInvolved = [
+            newState.firstBaseRunner,
+            newState.secondBaseRunner,
+            newState.thirdBaseRunner,
+          ].filter(Boolean) as string[];
+          break;
+  
+        case "Golpeado por la Pelota":
+        case "Base por Bolas":
+          newState = advanceForcedRunners(newState);
+          runnersInvolved = [
+            newState.firstBaseRunner,
+            newState.secondBaseRunner,
+            newState.thirdBaseRunner,
+          ].filter(Boolean) as string[];
+          break;
+  
+        case "Double Play":
+          newState = handleDoublePlay(newState);
+          runnersInvolved = [
+            newState.firstBaseRunner,
+            newState.secondBaseRunner,
+          ].filter(Boolean) as string[];
+          break;
+  
+        default:
+          // Manejar hits (sencillos, dobles, triples, jonrones)
+          if (playType.category === "Bateo" && playType.type === "Hit") {
+            newState = advanceRunners(newState, playType.basesToAdvance);
+          }
+          runnersInvolved = [
+            newState.firstBaseRunner,
+            newState.secondBaseRunner,
+            newState.thirdBaseRunner,
+          ].filter(Boolean) as string[];
+      }
+    }
+  
+    // Manejar hits específicamente para asignar al bateador a las bases
+    if (playType.category === "Bateo" && playType.type === "Hit") {
+      const bases = playType.basesToAdvance;
+      if (bases === 1) {
+        newState.firstBase = true;
+        newState.firstBaseRunner = currentGame.currentBatter;
+      } else if (bases === 2) {
+        newState.secondBase = true;
+        newState.secondBaseRunner = currentGame.currentBatter;
+      } else if (bases === 3) {
+        newState.thirdBase = true;
+        newState.thirdBaseRunner = currentGame.currentBatter;
+      }
+    }
+  
+    // Manejar outs
+    if (playType.isOut && playType.type !== "Double Play") {
+      newState.outs += 1;
+      if (newState.outs >= 3) {
+        newState.outs = 0;
+        newState.firstBase = false;
+        newState.secondBase = false;
+        newState.thirdBase = false;
+        newState.firstBaseRunner = null;
+        newState.secondBaseRunner = null;
+        newState.thirdBaseRunner = null;
+        newState.isTopInning = !newState.isTopInning;
+        if (!newState.isTopInning) newState.inning += 1;
+      }
+    }
+  
+    // Actualizar el estado del juego
+    await updateGame(selectedPlay.gameId, newState);
+  
+    // Registrar la jugada
+    await registerPlay(
+      selectedPlay.gameId,
+      playType.type,
+      playType.description,
+      {
+        ...newState,
+        subType: playType.subType,
+        batter: selectedPlay.batter,
+        runners: runnersInvolved,
+        firstBaseRunner: newState.firstBaseRunner,
+        secondBaseRunner: newState.secondBaseRunner,
+        thirdBaseRunner: newState.thirdBaseRunner,
+      }
+    );
+  
+    setShowPlaySelector(false);
+    setSelectedPlay(null);
+  };
+
+  const GamePlayItem = ({ play }: { play: any }) => {
+    const formatDescription = () => {
+      const players = play.runners ? JSON.parse(play.runners) : [];
+      const time = new Date(play.created_at).toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+  
+      return (
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="font-semibold">{play.play_order}. {play.description}</span>
+            {players.length > 0 && (
+              <span className="text-sm text-gray-500 ml-2">
+                (Mueve a: {players.join(', ')})
+              </span>
+            )}
+          </div>
+          <span className="text-sm text-gray-500">{time}</span>
+        </div>
+      );
+    };
+  
+    return (
+      <div className="py-2 border-b">
+        {formatDescription()}
+      </div>
+    );
   };
 
   const updateGame = async (id: string, updates: Partial<LiveGame>) => {
@@ -178,23 +655,12 @@ export default function AdminLiveGamesPage() {
     if (!currentGame) return;
 
     let finalUpdates = { ...updates };
-
-    if (updates.outs !== undefined && updates.outs === 3) {
-      finalUpdates = {
-        ...finalUpdates,
-        outs: 0,
-        firstBase: false,
-        secondBase: false,
-        thirdBase: false,
-        balls: 0,
-        strikes: 0,
-        isTopInning: !currentGame.isTopInning,
-      };
-    }
-
     const snakeCaseUpdates: any = {
       current_batter: finalUpdates.currentBatter,
       current_pitcher: finalUpdates.currentPitcher,
+      first_base_runner: finalUpdates.firstBaseRunner,
+      second_base_runner: finalUpdates.secondBaseRunner,
+      third_base_runner: finalUpdates.thirdBaseRunner,
     };
 
     if (finalUpdates.homeTeam !== undefined)
@@ -246,6 +712,125 @@ export default function AdminLiveGamesPage() {
     }
   };
 
+  useEffect(() => {
+    fetchGames();
+  }, [currentPage, selectedDate]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("live_games_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "live_games" },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newGameData = payload.new;
+            if (
+              newGameData.start_time &&
+              newGameData.start_time.startsWith(selectedDate)
+            ) {
+              if (currentPage === 1) {
+                setGames((current) =>
+                  [transformGame(newGameData), ...current].slice(0, pageSize)
+                );
+              }
+              setTotalGames((prev) => prev + 1);
+            }
+          } else if (payload.eventType === "UPDATE") {
+            setGames((current) =>
+              current.map((game) =>
+                game.id === payload.new.id ? transformGame(payload.new) : game
+              )
+            );
+          } else if (payload.eventType === "DELETE") {
+            setGames((current) =>
+              current.filter((game) => game.id !== payload.old.id)
+            );
+            setTotalGames((prev) => prev - 1);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedDate, currentPage]);
+
+  const fetchGames = async () => {
+    setIsLoading(true);
+    try {
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize - 1;
+      const startDate = new Date(selectedDate + "T00:00:00");
+      const endDate = new Date(selectedDate + "T23:59:59.999");
+
+      const { data, error, count } = await supabase
+        .from("live_games")
+        .select("*", { count: "exact" })
+        .gte("start_time", startDate.toISOString())
+        .lte("start_time", endDate.toISOString())
+        .order("created_at", { ascending: false })
+        .range(start, end);
+
+      if (error) throw error;
+      setGames((data || []).map(transformGame));
+      setTotalGames(count ?? 0);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const createGame = async () => {
+    try {
+      setIsCreating(true);
+      const { data, error } = await supabase
+        .from("live_games")
+        .insert([
+          {
+            home_team: teams[0],
+            away_team: teams[1],
+            start_time: new Date().toISOString(),
+            status: "pre",
+            current_batter: "Por determinar",
+            current_pitcher: "Por determinar",
+          },
+        ])
+        .select();
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const newGame = transformGame(data[0]);
+        await registerPlay(
+          newGame.id,
+          "game_created",
+          "Juego creado",
+          {
+            inning: newGame.inning,
+            isTopInning: newGame.isTopInning,
+            outs: newGame.outs,
+            firstBase: newGame.firstBase,
+            secondBase: newGame.secondBase,
+            thirdBase: newGame.thirdBase,
+            balls: newGame.balls,
+            strikes: newGame.strikes,
+          }
+        );
+      }
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        fetchGames();
+      }
+    } catch (error) {
+      console.error("Error creating game:", error);
+      alert("Error al crear el juego");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const totalPages = Math.ceil(totalGames / pageSize) || 1;
 
   if (isLoading) {
@@ -258,6 +843,46 @@ export default function AdminLiveGamesPage() {
 
   return (
     <div className="min-h-screen from-black/95 to-blue-900 bg-gradient-to-b bg-cover bg-center">
+      {showPlaySelector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-black rounded-lg p-6 w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+            <h3 className="text-xl font-bold mb-4">Seleccionar Tipo de Jugada</h3>
+            <div className="space-y-4">
+              {Object.entries(
+                PLAY_TYPES.reduce((acc: Record<string, PlayType[]>, play) => {
+                  if (!acc[play.category]) acc[play.category] = [];
+                  acc[play.category].push(play);
+                  return acc;
+                }, {})
+              ).map(([category, plays]) => (
+                <div key={category} className="mb-6">
+                  <h4 className="text-lg font-semibold mb-2">{category}</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {plays.map((play) => (
+                      <Button
+                        key={play.description}
+                        onClick={() => handlePlaySelection(play)}
+                        className="text-sm h-10"
+                        variant="outline"
+                      >
+                        {play.description}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button
+              onClick={() => setShowPlaySelector(false)}
+              className="mt-4 w-full"
+              variant="destructive"
+            >
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-blue-500 shadow-md shadow-red-500 rounded-xl p-4">
@@ -467,11 +1092,12 @@ export default function AdminLiveGamesPage() {
                           min="0"
                           max="4"
                           value={game.balls}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const newBalls = parseInt(e.target.value);
                             updateGame(game.id, {
-                              balls: parseInt(e.target.value),
-                            })
-                          }
+                              balls: newBalls > 4 ? 4 : newBalls
+                            });
+                          }}
                         />
                       </div>
                       <div>
@@ -481,17 +1107,20 @@ export default function AdminLiveGamesPage() {
                           min="0"
                           max="3"
                           value={game.strikes}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const newStrikes = parseInt(e.target.value);
                             updateGame(game.id, {
-                              strikes: parseInt(e.target.value),
-                            })
-                          }
+                              strikes: newStrikes >= 3 ? 0 : newStrikes,
+                              outs: newStrikes >= 3 ? game.outs + 1 : game.outs,
+                              balls: newStrikes >= 3 ? 0 : game.balls
+                            });
+                          }}
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label>Bateador Actual</Label>
+                      <Label>Bateador Actual // Accion en Base</Label>
                       <div className="mt-2">
                         <BatterUpdater
                           gameId={game.id}
@@ -517,6 +1146,22 @@ export default function AdminLiveGamesPage() {
                     </div>
                   </div>
                 </div>
+              </div>
+              <div className="mt-4">
+                <Button
+                  onClick={() => {
+                    setSelectedPlay({
+                      gameId: game.id,
+                      playType: PLAY_TYPES[0],
+                      batter: game.currentBatter,
+                      runners: []
+                    });
+                    setShowPlaySelector(true);
+                  }}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Registrar Jugada
+                </Button>
               </div>
             </Card>
           ))}

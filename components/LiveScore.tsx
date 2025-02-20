@@ -22,8 +22,25 @@ type LiveGame = {
   start_time: string;
   balls: number;
   strikes: number;
-  current_batter: string; 
-  current_pitcher: string; // Nuevo campo añadido
+  current_batter: string;
+  current_pitcher: string;
+};
+
+type GamePlay = {
+  id: string;
+  game_id: string;
+  play_order: number;
+  inning: number;
+  is_top_inning: boolean;
+  play_type: string;
+  description: string;
+  outs: number | null;
+  first_base: boolean | null;
+  second_base: boolean | null;
+  third_base: boolean | null;
+  balls: number | null;
+  strikes: number | null;
+  created_at: string;
 };
 
 const getTeamStyle = (teamName: string) => {
@@ -50,29 +67,15 @@ export default function LiveScore() {
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
 
+  const [expandedGames, setExpandedGames] = useState<Record<string, boolean>>({});
+  const [gamePlays, setGamePlays] = useState<Record<string, GamePlay[]>>({});
+
   useEffect(() => {
     fetchGames();
-    setupSubscription();
+    setupLiveGamesSubscription();
   }, []);
 
-  const fetchGames = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("live_games")
-        .select("*")
-        .eq("status", "live")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setLiveGames((data as LiveGame[]) || []);
-    } catch (error) {
-      console.error("Error fetching games:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const setupSubscription = () => {
+  const setupLiveGamesSubscription = () => {
     const channel = supabase
       .channel("live_games_changes")
       .on(
@@ -100,6 +103,83 @@ export default function LiveScore() {
       supabase.removeChannel(channel);
     };
   };
+
+  const fetchGames = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("live_games")
+        .select("*")
+        .eq("status", "live")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setLiveGames((data as LiveGame[]) || []);
+    } catch (error) {
+      console.error("Error fetching games:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchGamePlays = async (gameId: string) => {
+    const { data, error } = await supabase
+      .from("game_plays")
+      .select("*")
+      .eq("game_id", gameId)
+      .order("play_order", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching plays for game", gameId, error);
+    } else {
+      const plays = (data as GamePlay[]) || [];
+      setGamePlays((prev) => ({ ...prev, [gameId]: plays }));
+    }
+  };
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("game_plays_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "game_plays" },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newPlay = payload.new as GamePlay;
+            setGamePlays((prev) => {
+              const playsForGame = prev[newPlay.game_id] || [];
+              return {
+                ...prev,
+                [newPlay.game_id]: [newPlay, ...playsForGame]
+              };
+            });
+          } else if (payload.eventType === "UPDATE") {
+            const updatedPlay = payload.new as GamePlay;
+            setGamePlays((prev) => {
+              const playsForGame = prev[updatedPlay.game_id] || [];
+              const newPlays = playsForGame.map((p) =>
+                p.id === updatedPlay.id ? updatedPlay : p
+              );
+              return {
+                ...prev,
+                [updatedPlay.game_id]: newPlays.sort((a, b) => b.play_order - a.play_order),
+              };
+            });
+          } else if (payload.eventType === "DELETE") {
+            const deletedPlay = payload.old as GamePlay;
+            setGamePlays((prev) => {
+              const playsForGame = prev[deletedPlay.game_id] || [];
+              const newPlays = playsForGame.filter((p) => p.id !== deletedPlay.id);
+              return { ...prev, [deletedPlay.game_id]: newPlays };
+            });
+          }
+        }
+      )
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -167,7 +247,7 @@ export default function LiveScore() {
 
               <div className="p-6">
                 <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <img
                         src={awayStyle.logo}
@@ -189,14 +269,12 @@ export default function LiveScore() {
                     </div>
                     <span className="text-2xl font-bold">{game.home_score}</span>
                   </div>
-                 
                 </div>
 
                 <div className="mt-6 border-t border-gray-100 pt-4">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="text-center">
                       <div className="text-lg text-gray-500 mb-2">Outs</div>
-                      
                       <div className="flex justify-center space-x-1">
                         {[...Array(3)].map((_, i) => (
                           <Circle
@@ -209,10 +287,12 @@ export default function LiveScore() {
                         ))}
                       </div>
                     </div>
-                        
-                    <div className="text-center space-x-2 ">
-                      <div className="text-lg text-gray-500 mb-4 text-left ">Bases</div>
-                      <div className="relative w-8 h-8 mx-auto transform ">
+
+                    <div className="text-center space-x-2">
+                      <div className="text-lg text-gray-500 mb-4 text-left">
+                        Bases
+                      </div>
+                      <div className="relative w-8 h-8 mx-auto transform">
                         <div
                           className={`absolute -top-2 left-1/2 transform rotate-45 -translate-x-1/2 w-4 h-4 ${
                             game.second_base ? "bg-yellow-300" : "bg-gray-200"
@@ -232,43 +312,136 @@ export default function LiveScore() {
                       </div>
                     </div>
 
-                    {/* Sección modificada con el bateador */}
                     <div className="text-center border rounded-lg p-1 bg-gray-800 shadow-lg shadow-blue-600">
                       <div className="flex flex-col space-y-2">
-                       
-                        <div className="text-lg font-medium text-white">Conteo</div>
+                        <div className="text-lg font-medium text-white">
+                          Conteo
+                        </div>
                         <div className="flex items-center justify-center space-x-2">
                           <div className="bg-blue-50 px-4 py-2 rounded-md">
-                            <span className="text-xl font-bold text-blue-900">{game.balls}</span>
-                            <span className="text-xs block mt-1 text-blue-600">BOLAS</span>
+                            <span className="text-xl font-bold text-blue-900">
+                              {game.balls}
+                            </span>
+                            <span className="text-xs block mt-1 text-blue-600">
+                              BOLAS
+                            </span>
                           </div>
                           <div className="h-8 w-px bg-gray-200"></div>
                           <div className="bg-red-50 px-2 py-2 rounded-md">
-                            <span className="text-xl font-bold text-red-600">{game.strikes}</span>
-                            <span className="text-xs block mt-1 text-red-500">STRIKES</span>
+                            <span className="text-xl font-bold text-red-600">
+                              {game.strikes}
+                            </span>
+                            <span className="text-xs block mt-1 text-red-500">
+                              STRIKES
+                            </span>
                           </div>
                         </div>
-                        
                       </div>
-                      
                     </div>
                     <div className="mb-3 w-max mx-auto">
-                          <p className="text-sm  text-green-600 font-semibold ">BATEADOR DE TURNO</p>
-                          <p className="text-xl text-white font-bold truncate ">
-                            {game.current_batter || "Por determinar"}
-                          </p>
-                        </div>
+                      <p className="text-sm text-green-600 font-semibold">
+                        BATEADOR DE TURNO / ACCION EN BASE
+                      </p>
+                      <p className="text-xl text-white font-bold truncate">
+                        {game.current_batter || "Por determinar"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="mt-3  mx-auto">
+                  <div className="mt-3 mx-auto">
                     <div className="text-sm text-yellow-300 font-semibold uppercase">
-                        EN LA LOMITA
-                                </div>
-                                <div className="text-xl text-white font-medium truncate">
-                    {game.current_pitcher || "Por determinar"}
-                                </div>
-                              </div>
-                  
+                      EN LA LOMITA
+                    </div>
+                    <div className="text-xl text-white font-medium truncate">
+                      {game.current_pitcher || "Por determinar"}
+                    </div>
+                  </div>
                 </div>
+
+                {/* Sección de historial de jugadas */}
+                <div className="mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setExpandedGames((prev) => {
+                        const newVal = !prev[game.id];
+                        if (newVal && !gamePlays[game.id]) {
+                          fetchGamePlays(game.id);
+                        }
+                        return { ...prev, [game.id]: newVal };
+                      });
+                    }}
+                  >
+                    {expandedGames[game.id] ? "Ocultar Jugadas" : "Mostrar Jugadas"}
+                  </Button>
+                </div>
+
+                {expandedGames[game.id] && (
+                  <div className="mt-2 border-t border-gray-300 pt-2">
+                    {gamePlays[game.id] ? (
+                      gamePlays[game.id].map((play) => {
+                        let parsedDescription: any;
+                        try {
+                          const descWithoutPrefix = play.description.replace(/^Actualización:\s*/, "");
+                          parsedDescription = JSON.parse(descWithoutPrefix);
+                        } catch (e) {
+                          parsedDescription = play.description;
+                        }
+                        
+                        return (
+                          <div key={play.id} className="py-1 border-b last:border-b-0">
+                            <div className="text-sm text-gray-600 flex justify-between">
+                              <span>
+                                {play.play_order}. {play.play_type}
+                              </span>
+                              <span>
+  {new Date(play.created_at).toLocaleTimeString('es-ES', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })}
+</span>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {typeof parsedDescription === "object" ? (
+                                <ul className="list-disc list-inside">
+                                  {Object.entries(parsedDescription).map(([key, value]) => {
+                                    // Reemplazar homeScore/awayScore con nombres de equipos
+                                    const displayKey = key === 'homeScore' 
+                                      ? game.home_team 
+                                      : key === 'awayScore' 
+                                        ? game.away_team 
+                                        : key;
+
+                                    // Formatear valores especiales
+                                    const displayValue = typeof value === 'boolean' 
+                                      ? (value ? 'Ocupada' : 'Vacía')
+                                      : key === 'inning'
+                                        ? `Entrada ${value}`
+                                        : key === 'is_top_inning'
+                                          ? (value ? 'Parte Alta' : 'Parte Baja')
+                                          : value;
+
+                                    return (
+                                      <li key={key}>
+                                        <strong>{displayKey}:</strong> {String(displayValue)}
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              ) : (
+                                parsedDescription
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-sm text-gray-500">Cargando jugadas...</div>
+                    )}
+                  </div>
+                )}
               </div>
             </Card>
           );

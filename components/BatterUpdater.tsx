@@ -21,11 +21,17 @@ export default function BatterUpdater({
         try {
             const { error } = await supabase
                 .from("live_games")
-                .update({ current_batter: batter })
+                .update({ 
+                    current_batter: batter,
+                    first_base_runner: batter  // Actualizar también el corredor en primera base
+                })
                 .eq("id", gameId);
 
             if (error) throw error;
-            await onUpdate(batter); // Ejecutar callback después de actualizar
+            
+            // Actualizar el estado local y notificar al componente padre
+            await onUpdate(batter);
+            
             alert("¡Bateador actualizado correctamente!");
         } catch (error) {
             console.error("Error updating batter:", error);
@@ -41,12 +47,13 @@ export default function BatterUpdater({
                 onChange={(e) => setBatter(e.target.value)}
                 placeholder="Nombre del bateador"
                 className="w-full p-2 border rounded"
+                aria-label="Nombre del bateador actual"
             />
             <button
                 onClick={handleUpdate}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
             >
-                Actualizar Bateador
+                Actualizar Bateador// Actualizar Jugada
             </button>
         </div>
     );
