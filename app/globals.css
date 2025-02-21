@@ -95,3 +95,14 @@
     @apply bg-[--primary] text-[--primary-foreground] font-bold py-3 px-6 rounded-lg hover:opacity-80;
   }
 }
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,47 +1,55 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Trophy, Calendar, Star, Users, MicVocal, Newspaper,  } from "lucide-react";
+import { ArrowRight, Trophy, Calendar, Star, Users, MicVocal, Newspaper } from "lucide-react";
 import Noticias from "@/app/(routes)/noticias/page";
 import MultimediaPage from "./(routes)/multimedia/page";
+import Standings from "@/components/Standings"; // Asegúrate de ajustar la ruta según tu estructura
 
 export default function Home() {
   return (
-    <div className="relative ">
+    <div className="relative">
       {/* Hero Section */}
-      <div 
+      <div
         className="relative h-[800px] bg-cover bg-center"
         style={{
           backgroundImage: "url('/images/Fondo.jpg')",
         }}
       >
-        <div className="absolute  inset-0 bg-gradient-to-b  from-red-900/90  to-blue-800/70 shadow-lg shadow-blue-400" />
+        <div className="absolute inset-0 bg-gradient-to-b from-red-900/90 to-blue-800/70 shadow-lg shadow-blue-400" />
         <div className="relative mx-auto max-w-7xl px-4 py-32 sm:px-6 lg:px-8">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Lidom Podcast Show
-            </h1>
-            <p className="mt-6 text-xl text-blue-100">
-            <MicVocal  className="h-12 w-12 text-blue-200 mb-4"> </MicVocal>Bienvenido a Lidom Podcast Show, el espacio donde discutimos todo sobre la Liga de Béisbol Profesional de la República Dominicana (LIDOM). Entérate de las últimas noticias, análisis y entrevistas exclusivas con los protagonistas del béisbol dominicano." 
-            </p>
-            <div className="mt-10 flex items-center gap-x-6 bg">
-              <Button asChild className="bg-blue-400 text-blue-900 hover:bg-yellow-500">
-                <Link href="/historia">
-                Nuestra Historia
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              {/* <Button asChild variant="outline" className="bg-blue-900 text-white border-white hover:bg-white/10">
-                <Link href="/historia">
-                  Nuestra Historia
-                </Link>
-              </Button> */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Sección izquierda: Título y descripción */}
+            <div className="max-w-2xl">
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Lidom Podcast Show
+              </h1>
+              <p className="mt-6 text-xl text-blue-100">
+                <MicVocal className="h-12 w-12 text-blue-200 mb-4" />
+                Bienvenido a Lidom Podcast Show, el espacio donde discutimos todo sobre la Liga de
+                Béisbol Profesional de la República Dominicana (LIDOM). Entérate de las últimas
+                noticias, análisis y entrevistas exclusivas con los protagonistas del béisbol
+                dominicano.
+              </p>
+              <div className="mt-10 flex items-center gap-x-6">
+                <Button asChild className="bg-blue-400 text-blue-900 hover:bg-yellow-500">
+                  <Link href="/historia">
+                    Nuestra Historia
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Sección derecha: Standings */}
+            <div className="flex justify-center items-start w-auto">
+              <Standings />
             </div>
           </div>
         </div>
       </div>
-                
-      {/* Comentado porque no la vamos a usar por el momento Stats Section */}
-      {/* <div className="bg-white py-12 bg">
+
+      {/* Comentado Stats Section */}
+      {/* <div className="bg-white py-12">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div className="flex flex-col items-center p-6 bg-blue-50 rounded-lg">
@@ -68,18 +76,11 @@ export default function Home() {
         </div>
       </div> */}
 
-
       {/* Latest News Section */}
-      <div className="bg-gray-50 grid grid-cols-1 py-1">
-     
-      </div>
+      <div className="bg-gray-50 grid grid-cols-1 py-1"></div>
 
-      
       <MultimediaPage />
-        
       <Noticias />
-
-      
 
       {/* Next Game Section */}
       {/* <div className="bg-blue-900 py-16">
@@ -144,7 +145,6 @@ export default function Home() {
       </div>
 
       {/* Newsletter Section */}
-      
     </div>
   );
 }

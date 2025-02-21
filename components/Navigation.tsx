@@ -191,16 +191,15 @@ export default function Navigation() {
           </div>
         )}
       </div>
-      {/* Estilos para la animación de giro */}
       <style jsx>{`
-        .spin-container {
-          display: inline-block;
-          transition: transform 0.5s ease-in-out;
-        }
-        .spin-container:hover {
-          transform: rotate(360deg);
-        }
-      `}</style>
+  .spin-container {
+    display: inline-block;
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .spin-container:hover {
+    transform: rotate(360deg) scale(1.3); /* Agrega un pequeño aumento de tamaño */
+  }
+`}</style>
     </nav>
   );
 }
