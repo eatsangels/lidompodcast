@@ -592,11 +592,17 @@ export default function AdminLiveGamesPage() {
         newState.firstBaseRunner = null;
         newState.secondBaseRunner = null;
         newState.thirdBaseRunner = null;
-        newState.isTopInning = !newState.isTopInning;
-        if (!newState.isTopInning) newState.inning += 1;
+        
+        // Guardar el estado original antes de cambiarlo
+        const wasTopInning = newState.isTopInning;
+        newState.isTopInning = !wasTopInning;
+        
+        // Solo incrementar el inning si estábamos en la parte baja
+        if (!wasTopInning) {
+          newState.inning += 1;
+        }
       }
     }
-  
     // Actualizar el estado del juego
     await updateGame(selectedPlay.gameId, newState);
   
