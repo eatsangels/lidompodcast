@@ -4,6 +4,7 @@ import { ArrowRight, Trophy, Calendar, Star, Users, MicVocal, Newspaper } from "
 import Noticias from "@/app/(routes)/noticias/page";
 import MultimediaPage from "./(routes)/multimedia/page";
 import Standings from "@/components/Standings"; // Asegúrate de ajustar la ruta según tu estructura
+import CountdownTimer from "@/components/CountdownTimer";
 
 export default function Home() {
   return (
@@ -37,6 +38,7 @@ export default function Home() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
+                
               </div>
             </div>
 
@@ -44,7 +46,9 @@ export default function Home() {
             <div className="flex justify-center items-start w-auto">
               <Standings />
             </div>
+            <CountdownTimer />
           </div>
+         
         </div>
       </div>
 
