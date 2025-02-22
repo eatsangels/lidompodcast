@@ -32,7 +32,7 @@ const CountdownTimer = () => {
   }, [targetDate]);
 
   return (
-    <div className="mt-8 p-4 md:p-6 bg-white/95 backdrop-blur-sm rounded-2xl border-4 border-blue-400 shadow-2xl 
+    <div className="mt-8 p-4 md:p-6 bg-white/45 backdrop-blur-sm rounded-2xl border-4 border-blue-400 shadow-2xl 
            w-full max-w-[90%] mx-auto
            md:max-w-[500px] md:border-2 md:shadow-lg
            transform transition-all duration-300
@@ -40,7 +40,7 @@ const CountdownTimer = () => {
            active:scale-95
            md:hover:scale-100
            animate-fade-in-up">
-      <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-blue-900 text-center drop-shadow-md">
+      <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-white text-center drop-shadow-md">
         INICIO DE LIDOM 2025-26
       </h3>
       

@@ -46,9 +46,9 @@ export default function Home() {
             <div className="flex justify-center items-start w-auto">
               <Standings />
             </div>
-            <CountdownTimer />
+            
           </div>
-         
+          <CountdownTimer />
         </div>
       </div>
 
