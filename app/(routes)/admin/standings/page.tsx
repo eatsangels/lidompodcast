@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
+import { Loader2 } from "lucide-react";
 
 interface Team {
   id: string;
@@ -23,7 +24,7 @@ export default function AdminStandingsPage() {
   const supabase = createClient();
   const router = useRouter();
   const [standings, setStandings] = useState<Team[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Inicia como true para evitar mostrar contenido antes de verificar autenticación
+  const [isLoading, setIsLoading] = useState(true);
   const [newTeam, setNewTeam] = useState<Partial<Team>>({
     name: "",
     logo: "",
@@ -149,21 +150,30 @@ export default function AdminStandingsPage() {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex justify-center items-center">
-        <p className="text-blue-900">Verificando autenticación y cargando...</p>
+      <div className="h-screen flex justify-center items-center bg-indigo-50">
+        <div className="flex items-center gap-2 text-indigo-600">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <p>Cargando...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-blue-900 mb-8">Gestionar Tabla de Posiciones - LIDOM</h1>
-      
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-          {error}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-black p-8">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent">
+            Administración LIDOM
+          </h1>
+          <p className="text-gray-600 text-lg">Gestión de Tabla de Posiciones</p>
         </div>
-      )}
+
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
       {/* <Card className="p-6">
         <h3 className="text-2xl font-bold text-green-600 mb-6">Agregar Nuevo Equipo</h3>
@@ -209,56 +219,90 @@ export default function AdminStandingsPage() {
         </form>
       </Card> */}
 
-      {standings.length === 0 ? (
-        <p className="mt-8 text-center text-gray-600">No hay equipos registrados. Agrega uno arriba.</p>
-      ) : (
-        <div className="mt-8">
-          <h3 className="text-2xl font-bold text-blue-900 mb-4">Equipos Actuales</h3>
-          <div className="space-y-4">
-            {standings.map((team) => (
-              <Card key={team.id} className="p-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <p><strong>Nombre:</strong> {team.name}</p>
-                    <p><strong>Logo:</strong> <a href={team.logo} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">{team.logo}</a></p>
-                    <p><strong>Wins:</strong> {team.wins}</p>
-                    <p><strong>Losses:</strong> {team.losses}</p>
-                    <p><strong>Win %:</strong> {team.win_percentage?.toFixed(3).replace(/^0/, "") || ".000"}</p>
-                    <p><strong>Games Behind:</strong> {team.games_behind}</p>
-                  </div>
-                  <div>
+{standings.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No hay equipos registrados</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {standings.map((team) => (
+                <Card key={team.id} className="p-6 bg-white/90 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-semibold text-indigo-900">
+                        {team.name}
+                        <span className="block w-8 h-1 bg-emerald-500 mt-1 rounded-full"/>
+                      </h3>
+                      {team.logo && (
+                        <img 
+                          src={team.logo} 
+                          alt={team.name} 
+                          className="h-12 w-12 object-contain rounded-lg"
+                        />
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                          <span className="w-2 h-2 bg-emerald-500 rounded-full"/> Victorias
+                        </p>
+                        <p className="text-2xl font-bold text-gray-800">{team.wins}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                          <span className="w-2 h-2 bg-red-400 rounded-full"/> Derrotas
+                        </p>
+                        <p className="text-2xl font-bold text-gray-800">{team.losses}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500">Porcentaje</p>
+                        <div className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm w-fit">
+                          {team.win_percentage?.toFixed(3).replace(/^0/, "") || ".000"}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-500">Games Behind</p>
+                        <div className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm w-fit">
+                          {team.games_behind}
+                        </div>
+                      </div>
+                    </div>
+
                     {updatingTeamId === team.id ? (
-                      <div className="space-y-2">
+                      <div className="space-y-3 pt-4 border-t border-gray-100">
                         <Input
                           type="number"
                           value={updateWins}
                           onChange={(e) => setUpdateWins(Number(e.target.value) || 0)}
-                          min={0}
-                          step={1}
+                          className="focus:ring-2 focus:ring-emerald-500"
                           placeholder="Nuevas Victorias"
                         />
                         <Input
                           type="number"
                           value={updateLosses}
                           onChange={(e) => setUpdateLosses(Number(e.target.value) || 0)}
-                          min={0}
-                          step={1}
+                          className="focus:ring-2 focus:ring-emerald-500"
                           placeholder="Nuevas Derrotas"
                         />
-                        <Button
-                          onClick={() => handleUpdateSubmit(team.id)}
-                          disabled={isLoading}
-                          className="w-full bg-green-500 text-white hover:bg-green-600"
-                        >
-                          {isLoading ? "Actualizando..." : "Actualizar"}
-                        </Button>
-                        <Button
-                          onClick={() => setUpdatingTeamId(null)}
-                          variant="outline"
-                          className="w-full mt-2"
-                        >
-                          Cancelar
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => handleUpdateSubmit(team.id)}
+                            disabled={isLoading}
+                            className="bg-emerald-600 hover:bg-emerald-700 flex-1"
+                          >
+                            {isLoading && <Loader2 className="h-4 w-4 animate-spin mr-2"/>}
+                            {isLoading ? "Actualizando..." : "Guardar"}
+                          </Button>
+                          <Button
+                            onClick={() => setUpdatingTeamId(null)}
+                            variant="outline"
+                            className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <Button
@@ -267,18 +311,19 @@ export default function AdminStandingsPage() {
                           setUpdateWins(team.wins);
                           setUpdateLosses(team.losses);
                         }}
-                        className="bg-yellow-500 text-white hover:bg-yellow-600"
+                        variant="outline"
+                        className="w-full border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800"
                       >
-                        Actualizar Wins/Losses
+                        Editar Registro
                       </Button>
                     )}
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
