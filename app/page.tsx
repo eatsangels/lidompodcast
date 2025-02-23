@@ -17,7 +17,7 @@ export default function Home() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-red-900/90 to-blue-800/70 shadow-lg shadow-blue-400" />
-        <div className="relative mx-auto max-w-7xl px-4 py-32 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-7xl  py-32 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Sección izquierda: Título y descripción */}
             <div className="max-w-2xl">

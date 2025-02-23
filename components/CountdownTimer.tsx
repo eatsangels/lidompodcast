@@ -32,7 +32,7 @@ const CountdownTimer = () => {
   }, [targetDate]);
 
   return (
-    <div className="mt-8 p-4 md:p-6 bg-white/45 backdrop-blur-sm rounded-2xl border-4 border-blue-400 shadow-2xl 
+    <div className="z-1mt-8 p-4 md:p-6 bg-white/45 backdrop-blur-sm rounded-2xl border-4 border-blue-400 shadow-2xl 
            w-full max-w-[90%] mx-auto
            md:max-w-[500px] md:border-2 md:shadow-lg
            transform transition-all duration-300
