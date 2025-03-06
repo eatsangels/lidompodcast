@@ -11,9 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Lidom Podcast Show',
   description: 'Sitio oficial de los Lidom Podcast Show de la Liga de Béisbol Profesional de la República Dominicana',
-  keywords: 'Pelota Invernal, Licey, Escogidos, Aguilas, Estrellas, Toros, Gigantes, Lidom, Podcast, Show, Liga de Béisbol Profesional de la República Dominicana',
-  
-  
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
 };
 
 export default function RootLayout({
