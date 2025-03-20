@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -41,8 +41,8 @@ interface CommentData {
 }
 
 export default function NewsDetailPage() {
-  const { id } = useParams();
-  const supabase = createClient();
+  const { id } = useParams() as { id: string };
+  const supabase = useMemo(() => createClient(), []);
   const [news, setNews] = useState<News | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -52,12 +52,13 @@ export default function NewsDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const commentRef = useRef<HTMLInputElement>(null);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!id) return;
     
+    const abortController = new AbortController();
+
     const fetchNews = async () => {
       setLoading(true);
       try {
@@ -68,7 +69,7 @@ export default function NewsDetailPage() {
           .single();
 
         if (error) throw error;
-        setNews(data as News);
+        setNews(data as unknown as News);
 
         const { data: commentsData, error: commentsError } = await supabase
           .from("comments")
@@ -78,24 +79,30 @@ export default function NewsDetailPage() {
 
         if (commentsError) throw commentsError;
         setComments(commentsData.map((item) => ({
-          id: item.id,
-          user_name: item.user_name,
-          comment: item.comment,
-          created_at: item.created_at,
-          likes: item.likes || 0,
+          id: item.id as string,
+          user_name: item.user_name as string,
+          comment: item.comment as string,
+          created_at: item.created_at as string,
+          likes: (item.likes as number) ?? 0,
         })));
       } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Error loading content. Please try again.");
+        if (!abortController.signal.aborted) {
+          console.error("Error fetching data:", err);
+          setError("Error loading content. Please try again.");
+        }
       } finally {
-        setLoading(false);
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchNews();
+
+    return () => abortController.abort();
   }, [id, supabase]);
 
-  const handleCommentSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!id || !newComment.trim() || !userName.trim()) {
@@ -104,27 +111,30 @@ export default function NewsDetailPage() {
     }
 
     const commentData: CommentData = {
-      news_id: id.toString(),
+      news_id: id,
       user_name: userName.trim(),
       comment: newComment.trim(),
     };
 
     try {
       const { error, data } = await supabase
-        .from("comments")
-        .insert([commentData])
-        .select()
-        .single();
+      .from("comments")
+      .insert(commentData as unknown as Record<string, unknown>) // ← Corrección aplicada
+      .select()
+      .single();
 
       if (error) throw error;
 
-      setComments([{
-        id: data.id,
-        user_name: data.user_name,
-        comment: data.comment,
-        created_at: data.created_at,
-        likes: 0,
-      }, ...comments]);
+      setComments((prev) => [
+        {
+          id: data.id as string,
+          user_name: data.user_name as string,
+          comment: data.comment as string,
+          created_at: data.created_at as string,
+          likes: 0 as number,
+        },
+        ...prev,
+      ]);
       
       setNewComment("");
       setUserName("");
@@ -159,7 +169,7 @@ export default function NewsDetailPage() {
   };
 
   const handleOpenModal = async () => {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
       setIsModalOpen(true);
@@ -176,35 +186,6 @@ export default function NewsDetailPage() {
   const handleEditSuccess = async () => {
     handleCloseModal();
     router.refresh();
-
-    try {
-      const { data, error } = await supabase
-        .from("news")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
-      setNews(data as News);
-
-      const { data: commentsData, error: commentsError } = await supabase
-        .from("comments")
-        .select("*")
-        .eq("news_id", id)
-        .order("created_at", { ascending: false });
-
-      if (commentsError) throw commentsError;
-      setComments(commentsData.map((item) => ({
-        id: item.id,
-        user_name: item.user_name,
-        comment: item.comment,
-        created_at: item.created_at,
-        likes: item.likes || 0,
-      })));
-    } catch (err) {
-      console.error("Error refreshing data:", err);
-      setError("Error refreshing data. Please try again.");
-    }
   };
 
   const handleLike = async (comment: Comment) => {
@@ -216,13 +197,56 @@ export default function NewsDetailPage() {
 
       if (error) throw error;
 
-      setComments(comments.map((c) => 
+      setComments(prev => prev.map((c) => 
         c.id === comment.id ? { ...c, likes: (c.likes || 0) + 1 } : c
       ));
     } catch (error) {
       console.error("Error adding like:", error);
       setError("Error adding like. Please try again.");
     }
+  };
+
+  const isYoutubeUrl = (url?: string): boolean => {
+    if (!url) return false;
+    try {
+      const videoUrl = new URL(url);
+      return (
+        videoUrl.hostname.includes("youtube.com") ||
+        videoUrl.hostname.includes("youtu.be")
+      );
+    } catch {
+      return false;
+    }
+  };
+
+  const getYoutubeEmbedUrl = (url?: string): string => {
+    if (!url) return "";
+    try {
+      const videoUrl = new URL(url);
+      let videoId = "";
+
+      if (videoUrl.hostname.includes("youtube.com")) {
+        videoId = videoUrl.searchParams.get("v") || "";
+      } else if (videoUrl.hostname.includes("youtu.be")) {
+        videoId = videoUrl.pathname.slice(1);
+      }
+
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+    } catch {
+      return "";
+    }
+  };
+
+  const renderContent = () => {
+    if (!news?.content) return null;
+    const contentToRender = isExpanded ? news.content : news.content.slice(0, 300);
+    const paragraphs = contentToRender.split("\n").filter(Boolean);
+
+    return paragraphs.map((paragraph, index) => (
+      <p key={index} className="text-lg text-gray-800 mb-4 leading-relaxed">
+        {paragraph}
+      </p>
+    ));
   };
 
   if (loading) {
@@ -267,49 +291,7 @@ export default function NewsDetailPage() {
     );
   }
 
-  const isYoutubeUrl = (url: string): boolean => {
-    if (!url) return false;
-    try {
-      const videoUrl = new URL(url);
-      return (
-        videoUrl.hostname.includes("youtube.com") ||
-        videoUrl.hostname.includes("youtu.be")
-      );
-    } catch {
-      return false;
-    }
-  };
-
-  const getYoutubeEmbedUrl = (url: string): string => {
-    if (!url) return "";
-    try {
-      const videoUrl = new URL(url);
-      let videoId = "";
-
-      if (videoUrl.hostname.includes("youtube.com")) {
-        videoId = videoUrl.searchParams.get("v") || "";
-      } else if (videoUrl.hostname.includes("youtu.be")) {
-        videoId = videoUrl.pathname.slice(1);
-      }
-
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
-    } catch {
-      return "";
-    }
-  };
-
-  const renderContent = () => {
-    const contentToRender = isExpanded ? news.content : news.content.slice(0, 300);
-    const paragraphs = contentToRender.split("\n").filter(Boolean);
-
-    return paragraphs.map((paragraph, index) => (
-      <p key={index} className="text-lg text-gray-800 mb-4 leading-relaxed">
-        {paragraph}
-      </p>
-    ));
-  };
-
-  const showReadMore = news.content.length > 300 && !isExpanded;
+  const showReadMore = (news.content?.length || 0) > 300 && !isExpanded;
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-gradient-to-r from-red-900 to-indigo-600 rounded-xl shadow-2xl mt-10 transform transition-all duration-500 hover:scale-105">
@@ -319,18 +301,18 @@ export default function NewsDetailPage() {
 
       <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300">
         <div className="relative mb-4 flex justify-center">
-          <img
-            src={news.image_url}
-            alt={news.title}
-            className="w-1/2 h-auto rounded-lg shadow-md transition-all duration-500 transform hover:scale-105 hover:rotate-2"
-          />
+          {news.image_url && (
+            <img
+              src={news.image_url}
+              alt={news.title}
+              className="w-1/2 h-auto rounded-lg shadow-md transition-all duration-500 transform hover:scale-105 hover:rotate-2"
+            />
+          )}
         </div>
 
         {renderContent()}
         
-        {showReadMore && (
-          <span className="text-gray-500">...</span>
-        )}
+        {showReadMore && <span className="text-gray-500">...</span>}
 
         {news.video_url && isYoutubeUrl(news.video_url) && (
           <div className="relative mb-4 flex justify-center">
@@ -417,7 +399,7 @@ export default function NewsDetailPage() {
         </Button>
       </div>
 
-      {isModalOpen && news && (
+      {isModalOpen && (
         <EditNewsModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
@@ -429,9 +411,8 @@ export default function NewsDetailPage() {
       <div className="mt-10 p-6 bg-white rounded-lg shadow-lg">
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">Comentarios</h2>
 
-        <div className="mb-6">
+        <form onSubmit={handleCommentSubmit} className="mb-6">
           <input
-            ref={commentRef}
             type="text"
             className="w-full p-4 mb-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
             placeholder="Tu nombre..."
@@ -447,16 +428,16 @@ export default function NewsDetailPage() {
             onChange={(e) => setNewComment(e.target.value)}
           />
           <Button
-            onClick={handleCommentSubmit}
+            type="submit"
             className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-300"
           >
             Enviar comentario
           </Button>
-        </div>
+        </form>
 
         <div className="space-y-6">
           {comments.map((comment) => (
-            <div key={comment.id} id={comment.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+            <div key={comment.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
               <p className="text-sm font-semibold text-gray-600">{comment.user_name}</p>
               <p className="text-gray-700">{comment.comment}</p>
               <div className="flex items-center justify-between mt-2">
