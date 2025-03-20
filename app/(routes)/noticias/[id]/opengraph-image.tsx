@@ -76,7 +76,7 @@ export default async function Image({ params }: { params: { id: string } }) {
             }}
           />
           <div style={{ fontSize: 40, opacity: 0.8, zIndex: 10 }}>Lidom Podcast Show</div>
-          <div style={{ marginTop: 20, maxWidth: "80%", zIndex: 10 }}>{news.title}</div>
+          {/* <div style={{ marginTop: 20, maxWidth: "80%", zIndex: 10 }}>{news.title}</div> */}
         </div>
       ),
       { ...size }
