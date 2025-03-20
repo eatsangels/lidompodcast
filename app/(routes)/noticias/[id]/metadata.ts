@@ -7,18 +7,18 @@ interface News {
   title: string;
   content: string;
   image_url: string;
-  // Agrega otros campos necesarios
 }
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const supabase = createClient();
-  
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lidompodcast.com";
+
   try {
     const { data: news } = await supabase
       .from("news")
       .select("*")
       .eq("id", params.id)
-      .single<News>(); // Especificar el tipo genérico
+      .single<News>();
 
     if (!news) {
       return {
@@ -27,23 +27,31 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       };
     }
 
-    // Asegurar que content sea string y manejar posibles undefined
-    const description = news.content?.substring(0, 160) ?? 'Descripción no disponible';
-    
+    const description = news.content?.substring(0, 160) ?? "Descripción no disponible";
+    const imageUrl = news.image_url ? (news.image_url.startsWith("http") ? news.image_url : `${siteUrl}${news.image_url}`) : `${siteUrl}/default-image.jpg`;
+
     return {
       title: `${news.title} | Lidom Podcast Show`,
       description: description,
       openGraph: {
         title: news.title,
         description: description,
-        images: [news.image_url || '/default-image.jpg'], // Fallback para imagen
+        url: `${siteUrl}/noticia/${params.id}`,
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: news.title,
+          },
+        ],
         type: "article",
       },
       twitter: {
         card: "summary_large_image",
         title: news.title,
         description: description,
-        images: [news.image_url || '/default-image.jpg'], // Fallback para imagen
+        images: [imageUrl],
       },
     };
   } catch (error) {
