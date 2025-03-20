@@ -72,7 +72,7 @@ export default async function Image({ params }: { params: { id: string } }) {
               backgroundImage: `url(${news.image_url})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              opacity: 0.4,
+              opacity: 1,
             }}
           />
           <div style={{ fontSize: 40, opacity: 0.8, zIndex: 10 }}>Lidom Podcast Show</div>
