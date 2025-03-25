@@ -848,10 +848,11 @@ export default function AdminLiveGamesPage() {
 
   return (
     <div className="min-h-screen from-black/95 to-blue-900 bg-gradient-to-b bg-cover bg-center">
+      {/* Modal de selección de jugadas */}
       {showPlaySelector && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-black rounded-lg p-6 w-full max-w-3xl max-h-[80vh] overflow-y-auto">
-            <h3 className="text-xl font-bold mb-4">Seleccionar Tipo de Jugada</h3>
+            <h3 className="text-xl font-bold mb-4">📝 Seleccionar Tipo de Jugada</h3>
             <div className="space-y-4">
               {Object.entries(
                 PLAY_TYPES.reduce((acc: Record<string, PlayType[]>, play) => {
@@ -861,7 +862,7 @@ export default function AdminLiveGamesPage() {
                 }, {})
               ).map(([category, plays]) => (
                 <div key={category} className="mb-6">
-                  <h4 className="text-lg font-semibold mb-2">{category}</h4>
+                  <h4 className="text-lg font-semibold mb-2">⚾ {category}</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {plays.map((play) => (
                       <Button
@@ -882,20 +883,21 @@ export default function AdminLiveGamesPage() {
               className="mt-4 w-full"
               variant="destructive"
             >
-              Cancelar
+              🚫 Cancelar
             </Button>
           </div>
         </div>
       )}
-
+  
       <div className="max-w-7xl mx-auto">
+        {/* Título principal */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-blue-500 shadow-md shadow-red-500 rounded-xl p-4">
-            Juegos en Vivo
+            ⚾ Juegos en Vivo
           </h1>
           <div className="flex space-x-4 items-center">
             <Label htmlFor="dateFilter" className="text-white">
-              Fecha:
+              📅 Fecha:
             </Label>
             <Input
               id="dateFilter"
@@ -915,24 +917,23 @@ export default function AdminLiveGamesPage() {
               {isCreating ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
-                <Plus className="h-4 w-4 mr-2" />
+                <span>⚾ <Plus className="h-4 w-4 mr-2 inline" /> Nuevo Juego</span>
               )}
-              Nuevo Juego
             </Button>
           </div>
         </div>
-
+  
+        {/* Lista de juegos */}
         <div className="grid gap-8">
           {games.map((game) => (
             <Card key={game.id} className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Información del juego */}
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">
-                    Información del Juego
-                  </h3>
+                  <h3 className="text-xl font-semibold mb-4">ℹ️ Información del Juego</h3>
                   <div className="space-y-4">
                     <div>
-                      <Label>Estado</Label>
+                      <Label>🏟️ Estado</Label>
                       <select
                         className="w-full mt-1 rounded-md border border-gray-300 p-2"
                         value={game.status}
@@ -942,15 +943,15 @@ export default function AdminLiveGamesPage() {
                           })
                         }
                       >
-                        <option value="pre">Pre-juego</option>
-                        <option value="live">En Vivo</option>
-                        <option value="final">Final</option>
+                        <option value="pre">⏳ Pre-juego</option>
+                        <option value="live">▶️ En Vivo</option>
+                        <option value="final">🏁 Final</option>
                       </select>
                     </div>
-
+  
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Equipo Visitante</Label>
+                        <Label>🧢 Equipo Visitante</Label>
                         <select
                           className="w-full mt-1 rounded-md border border-gray-300 p-2"
                           value={game.awayTeam}
@@ -966,7 +967,7 @@ export default function AdminLiveGamesPage() {
                         </select>
                       </div>
                       <div>
-                        <Label>Equipo Local</Label>
+                        <Label>🧢 Equipo Local</Label>
                         <select
                           className="w-full mt-1 rounded-md border border-gray-300 p-2"
                           value={game.homeTeam}
@@ -982,10 +983,10 @@ export default function AdminLiveGamesPage() {
                         </select>
                       </div>
                     </div>
-
+  
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Carreras Visitante</Label>
+                        <Label>🏆 Carreras Visitante</Label>
                         <Input
                           type="number"
                           value={game.awayScore}
@@ -997,7 +998,7 @@ export default function AdminLiveGamesPage() {
                         />
                       </div>
                       <div>
-                        <Label>Carreras Local</Label>
+                        <Label>🏆 Carreras Local</Label>
                         <Input
                           type="number"
                           value={game.homeScore}
@@ -1011,15 +1012,14 @@ export default function AdminLiveGamesPage() {
                     </div>
                   </div>
                 </div>
-
+  
+                {/* Estado del juego */}
                 <div>
-                  <h3 className="text-xl font-semibold mb-4">
-                    Estado del Juego
-                  </h3>
+                  <h3 className="text-xl font-semibold mb-4">🎮 Estado del Juego</h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Entrada</Label>
+                        <Label>🏠 Entrada</Label>
                         <Input
                           type="number"
                           value={game.inning}
@@ -1031,7 +1031,7 @@ export default function AdminLiveGamesPage() {
                         />
                       </div>
                       <div>
-                        <Label>Alta/Baja</Label>
+                        <Label>⬆️⬇️ Alta/Baja</Label>
                         <div className="flex items-center space-x-2 mt-2">
                           <Switch
                             checked={game.isTopInning}
@@ -1039,59 +1039,64 @@ export default function AdminLiveGamesPage() {
                               updateGame(game.id, { isTopInning: checked })
                             }
                           />
-                          <span>{game.isTopInning ? "Alta" : "Baja"}</span>
+                          <span>{game.isTopInning ? "⬆️ Alta" : "⬇️ Baja"}</span>
                         </div>
                       </div>
                     </div>
-
+  
                     <div>
-                      <Label>Outs</Label>
+                      <Label>❌ Outs</Label>
                       <div className="flex space-x-2 mt-2">
                         {[0, 1, 2].map((out) => (
                           <button
                             key={out}
-                            onClick={() =>
-                              updateGame(game.id, { outs: out + 1 })
-                            }
+                            onClick={() => updateGame(game.id, { outs: out + 1 })}
                             className={`p-2 rounded-full ${
-                              game.outs > out
-                                ? "bg-red-900 text-white"
-                                : "bg-blue-900"
+                              game.outs > out ? "bg-red-900 text-white" : "bg-blue-900"
                             }`}
                           >
-                            <Circle className="h-4 w-4" />
+                            {game.outs > out ? "❌" : "⚪"}
                           </button>
                         ))}
                       </div>
                     </div>
-
+  
                     <div>
-                      <Label>Bases</Label>
+                      <Label>🏃 Bases</Label>
                       <div className="flex space-x-4 mt-2">
-                        <Switch
-                          checked={game.firstBase}
-                          onCheckedChange={(checked) =>
-                            updateGame(game.id, { firstBase: checked })
-                          }
-                        />
-                        <Switch
-                          checked={game.secondBase}
-                          onCheckedChange={(checked) =>
-                            updateGame(game.id, { secondBase: checked })
-                          }
-                        />
-                        <Switch
-                          checked={game.thirdBase}
-                          onCheckedChange={(checked) =>
-                            updateGame(game.id, { thirdBase: checked })
-                          }
-                        />
+                        <div className="flex flex-col items-center">
+                          <Switch
+                            checked={game.firstBase}
+                            onCheckedChange={(checked) =>
+                              updateGame(game.id, { firstBase: checked })
+                            }
+                          />
+                          <span>{game.firstBase ? "🏃" : "⚪"}</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <Switch
+                            checked={game.secondBase}
+                            onCheckedChange={(checked) =>
+                              updateGame(game.id, { secondBase: checked })
+                            }
+                          />
+                          <span>{game.secondBase ? "🏃" : "⚪"}</span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <Switch
+                            checked={game.thirdBase}
+                            onCheckedChange={(checked) =>
+                              updateGame(game.id, { thirdBase: checked })
+                            }
+                          />
+                          <span>{game.thirdBase ? "🏃" : "⚪"}</span>
+                        </div>
                       </div>
                     </div>
-
+  
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label>Bolas</Label>
+                        <Label>⚾ Bolas</Label>
                         <Input
                           type="number"
                           min="0"
@@ -1100,13 +1105,13 @@ export default function AdminLiveGamesPage() {
                           onChange={(e) => {
                             const newBalls = parseInt(e.target.value);
                             updateGame(game.id, {
-                              balls: newBalls > 4 ? 4 : newBalls
+                              balls: newBalls > 4 ? 4 : newBalls,
                             });
                           }}
                         />
                       </div>
                       <div>
-                        <Label>Strikes</Label>
+                        <Label>🔥 Strikes</Label>
                         <Input
                           type="number"
                           min="0"
@@ -1117,15 +1122,15 @@ export default function AdminLiveGamesPage() {
                             updateGame(game.id, {
                               strikes: newStrikes >= 3 ? 0 : newStrikes,
                               outs: newStrikes >= 3 ? game.outs + 1 : game.outs,
-                              balls: newStrikes >= 3 ? 0 : game.balls
+                              balls: newStrikes >= 3 ? 0 : game.balls,
                             });
                           }}
                         />
                       </div>
                     </div>
-
+  
                     <div>
-                      <Label>Bateador Actual // Accion en Base</Label>
+                      <Label>👤 Bateador Actual</Label>
                       <div className="mt-2">
                         <BatterUpdater
                           gameId={game.id}
@@ -1136,9 +1141,9 @@ export default function AdminLiveGamesPage() {
                         />
                       </div>
                     </div>
-
+  
                     <div>
-                      <Label>Lanzador Actual</Label>
+                      <Label>🎯 Lanzador Actual</Label>
                       <div className="mt-2">
                         <PitcherUpdater
                           gameId={game.id}
@@ -1152,6 +1157,8 @@ export default function AdminLiveGamesPage() {
                   </div>
                 </div>
               </div>
+  
+              {/* Botón de registrar jugada */}
               <div className="mt-4">
                 <Button
                   onClick={() => {
@@ -1159,38 +1166,37 @@ export default function AdminLiveGamesPage() {
                       gameId: game.id,
                       playType: PLAY_TYPES[0],
                       batter: game.currentBatter,
-                      runners: []
+                      runners: [],
                     });
                     setShowPlaySelector(true);
                   }}
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
-                  Registrar Jugada
+                  📝 Registrar Jugada
                 </Button>
               </div>
             </Card>
           ))}
         </div>
-
+  
+        {/* Paginación */}
         <div className="flex items-center justify-between mt-8">
           <Button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className="bg-blue-900 text-white"
           >
-            Anterior
+            ⬅️ Anterior
           </Button>
           <span className="text-white">
             Página {currentPage} de {totalPages}
           </span>
           <Button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
             className="bg-blue-900 text-white"
           >
-            Siguiente
+            Siguiente ➡️
           </Button>
         </div>
       </div>
