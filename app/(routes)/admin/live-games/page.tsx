@@ -482,8 +482,11 @@ export default function AdminLiveGamesPage() {
       }
     });
   
-    // Agregar al bateador a la base correspondiente (solo para hits)
-    if (bases > 0 && bases < 4) {
+    // Para jonrones, el bateador también anota
+    if (bases === 4) {
+      runs += 1; // Solo sumamos 1 por el bateador
+    } else if (bases > 0 && bases < 4) {
+      // Agregar al bateador a la base correspondiente (solo para hits que no son jonrones)
       switch (bases) {
         case 1:
           newGame.firstBase = true;
@@ -498,11 +501,6 @@ export default function AdminLiveGamesPage() {
           newGame.thirdBaseRunner = currentGame.currentBatter;
           break;
       }
-    }
-  
-    // Para jonrones, todos los corredores y el bateador anotan carreras
-    if (bases === 4) {
-      runs += runners.filter(({ isOn }) => isOn).length + 1; // +1 por el bateador
     }
   
     // Actualizar el marcador
@@ -567,19 +565,20 @@ export default function AdminLiveGamesPage() {
     }
   
     // Manejar hits específicamente para asignar al bateador a las bases
-    if (playType.category === "Bateo" && playType.type === "Hit") {
-      const bases = playType.basesToAdvance;
-      if (bases === 1) {
-        newState.firstBase = true;
-        newState.firstBaseRunner = currentGame.currentBatter;
-      } else if (bases === 2) {
-        newState.secondBase = true;
-        newState.secondBaseRunner = currentGame.currentBatter;
-      } else if (bases === 3) {
-        newState.thirdBase = true;
-        newState.thirdBaseRunner = currentGame.currentBatter;
-      }
-    }
+    if (playType.category === "Bateo" && playType.type === "Hit" && playType.basesToAdvance < 4) {
+  const bases = playType.basesToAdvance;
+  if (bases === 1) {
+    newState.firstBase = true;
+    newState.firstBaseRunner = currentGame.currentBatter;
+  } else if (bases === 2) {
+    newState.secondBase = true;
+    newState.secondBaseRunner = currentGame.currentBatter;
+  } else if (bases === 3) {
+    newState.thirdBase = true;
+    newState.thirdBaseRunner = currentGame.currentBatter;
+  }
+}
+
   
     // Manejar outs
     if (playType.isOut && playType.type !== "Double Play") {
