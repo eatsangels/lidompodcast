@@ -20,7 +20,7 @@ import NextImage from "next/image";
 
 const navItems = [
   { label: "Inicio", href: "/", icon: Home },
-  { label: "En Vivo", href: "/livegames", icon: UserCog },
+  { label: "Juegos", href: "/livegames", icon: UserCog },
   { label: "Historia", href: "/historia", icon: BookOpen },
   { label: "Estadística", href: "/estadistica", icon: BarChart },
   { label: "Comunidad", href: "/comunidad", icon: Users },
